@@ -199,7 +199,7 @@
         // Add a header for the product results
         const header = document.createElement('div');
         header.classList.add('shop-ai-product-header');
-        header.innerHTML = '<h4>Top Matching Products</h4>';
+        header.innerHTML = '<h4>Produits trouvés</h4>';
         productSection.appendChild(header);
 
         // Create the product grid container
@@ -481,7 +481,7 @@
             prompt_type: promptType
           });
 
-          const streamUrl = 'https://localhost:3458/chat';
+          const streamUrl = 'http://localhost:46709/chat';
           const shopId = window.shopId;
 
           const response = await fetch(streamUrl, {
