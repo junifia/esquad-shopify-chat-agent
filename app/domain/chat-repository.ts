@@ -17,7 +17,7 @@ export interface ChatRepository
     conversationId: string,
     role: string,
     content: string,
-    shopDomain: string
+    shopDomain?: string
   ): Promise<Message>;
   getConversationHistory(conversationId: string): Promise<Message[]>;
 

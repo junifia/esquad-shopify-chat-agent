@@ -1,4 +1,4 @@
-import { chatRepository } from './config';
+import { chatService } from './config';
 import { CustomerAccountUrls } from './domain/customerAccountUrls';
 import { Message } from './domain/message';
 import { CustomerToken } from './domain/customerToken';
@@ -10,7 +10,7 @@ import { CustomerToken } from './domain/customerToken';
  * @returns {Promise<Object>} - The saved code verifier object
  */
 export async function storeCodeVerifier(state: string, verifier: string) {
-  return await chatRepository.storeCodeVerifier(state, verifier);
+  return await chatService.storeCodeVerifier(state, verifier);
 }
 
 /**
@@ -19,7 +19,7 @@ export async function storeCodeVerifier(state: string, verifier: string) {
  * @returns {Promise<Object|null>} - The code verifier object or null if not found
  */
 export async function getCodeVerifier(state: string) {
-  return chatRepository.getCodeVerifier(state);
+  return await chatService.getCodeVerifier(state);
 }
 
 /**
@@ -34,7 +34,7 @@ export async function storeCustomerToken(
   accessToken: string,
   expiresAt: string,
 ): Promise<CustomerToken> {
-  return await chatRepository.storeCustomerToken(conversationId, accessToken, expiresAt);
+  return await chatService.storeCustomerToken(conversationId, accessToken, expiresAt);
 }
 
 /**
@@ -43,7 +43,7 @@ export async function storeCustomerToken(
  * @returns {Promise<Object|null>} - The customer token or null if not found/expired
  */
 export async function getCustomerToken(conversationId: string): Promise<CustomerToken|null> {
-  return await chatRepository.getCustomerToken(conversationId);
+  return await chatService.getCustomerToken(conversationId);
 }
 
 /**
@@ -52,9 +52,7 @@ export async function getCustomerToken(conversationId: string): Promise<Customer
  * @returns {Promise<Object>} - The created or updated conversation
  */
 export async function createOrUpdateConversation(conversationId: string, shopDomain: string): Promise<object> {
-  const buffer = Buffer.from(shopDomain, 'utf-8');
-  const base64EncodedShopDomain = buffer.toString('base64');
-  return await chatRepository.createOrUpdateConversation(conversationId, base64EncodedShopDomain);
+  return await chatService.createOrUpdateConversation(conversationId, shopDomain);
 }
 
 /**
@@ -74,7 +72,7 @@ export async function saveMessage(
     createOrUpdateConversation(conversationId, shopDomain);
   }
 
-  return await chatRepository.saveMessage(conversationId, role, content);
+  return await chatService.saveMessage(conversationId, role, content);
 }
 
 /**
@@ -83,7 +81,7 @@ export async function saveMessage(
  * @returns {Promise<Message>} - Array of messages in the conversation
  */
 export async function getConversationHistory(conversationId: string): Promise<Message[]> {
-  return await chatRepository.getConversationHistory(conversationId);
+  return await chatService.getConversationHistory(conversationId);
 }
 
 /**
@@ -100,7 +98,7 @@ export async function storeCustomerAccountUrls({
   authorizationUrl,
   tokenUrl,
 }): Promise<object> {
-  return chatRepository.storeCustomerAccountUrls({conversationId, mcpApiUrl, authorizationUrl, tokenUrl});
+  return chatService.storeCustomerAccountUrls({conversationId, mcpApiUrl, authorizationUrl, tokenUrl});
 }
 
 /**
@@ -109,5 +107,5 @@ export async function storeCustomerAccountUrls({
  * @returns {CustomerAccountUrls|null} - The customer account URLs or null if not found
  */
 export async function getCustomerAccountUrls(conversationId: string): Promise<CustomerAccountUrls|null> {
-  return await chatRepository.getCustomerAccountUrls(conversationId);
+  return await chatService.getCustomerAccountUrls(conversationId);
 }
