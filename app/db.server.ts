@@ -51,8 +51,10 @@ export async function getCustomerToken(conversationId: string): Promise<Customer
  * @param {string} conversationId - The conversation ID
  * @returns {Promise<Object>} - The created or updated conversation
  */
-export async function createOrUpdateConversation(conversationId: string): Promise<object> {
-  return await chatRepository.createOrUpdateConversation(conversationId);
+export async function createOrUpdateConversation(conversationId: string, shopDomain: string): Promise<object> {
+  const buffer = Buffer.from(shopDomain, 'utf-8');
+  const base64EncodedShopDomain = buffer.toString('base64');
+  return await chatRepository.createOrUpdateConversation(conversationId, base64EncodedShopDomain);
 }
 
 /**
@@ -66,7 +68,12 @@ export async function saveMessage(
   conversationId: string,
   role: string,
   content: string,
+  shopDomain: string
 ): Promise<Message> {
+  if (shopDomain) {
+    createOrUpdateConversation(conversationId, shopDomain);
+  }
+
   return await chatRepository.saveMessage(conversationId, role, content);
 }
 
