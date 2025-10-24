@@ -1,6 +1,6 @@
 import { CustomerAccountUrls } from "./customerAccountUrls";
 import { CustomerToken } from "./customerToken";
-import { Message } from "./message";
+import { Conversation, Message } from "./message";
 
 export interface ChatRepository
 {
@@ -12,14 +12,15 @@ export interface ChatRepository
     expiresAt: string,
   ): Promise<CustomerToken>;
   getCustomerToken(conversationId: string): Promise<CustomerToken | null>;
-  createOrUpdateConversation(conversationId: string): Promise<object>;
+  createOrUpdateConversation(conversationId: string, shopDomain:string): Promise<object>;
   saveMessage(
     conversationId: string,
     role: string,
     content: string,
+    shopDomain: string
   ): Promise<Message>;
   getConversationHistory(conversationId: string): Promise<Message[]>;
-  
+
   storeCustomerAccountUrls({
     conversationId,
     mcpApiUrl,
@@ -28,4 +29,6 @@ export interface ChatRepository
   }): Promise<object>;
 
   getCustomerAccountUrls(conversationId: string): Promise<CustomerAccountUrls | null>;
+
+  getShopConversationHistory(shopDomainHash: string, startAfterCreateAt?: number|null, limit?: number): Promise<Conversation[]>;
 }

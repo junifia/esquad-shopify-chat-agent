@@ -2,12 +2,11 @@ import { Firestore } from "@google-cloud/firestore";
 import { ChatRepository } from "app/domain/chat-repository";
 import { CustomerAccountUrls } from "app/domain/customerAccountUrls";
 import { CustomerToken } from "app/domain/customerToken";
-import { Message } from "app/domain/message";
+import { Conversation, Message } from "app/domain/message";
 
-export class FirestoreChatRepository implements ChatRepository
-{
+export class FirestoreChatRepository implements ChatRepository {
   firestore: Firestore;
-  constructor(firestore: Firestore){
+  constructor(firestore: Firestore) {
     this.firestore = firestore;
   }
 
@@ -112,7 +111,7 @@ export class FirestoreChatRepository implements ChatRepository
     }
   }
 
-  async createOrUpdateConversation(conversationId: string): Promise<object> {
+  async createOrUpdateConversation(conversationId: string, shopDomain: string): Promise<object> {
     try {
       const docRef = this.firestore.collection('conversation').doc(conversationId);
       const docSnap = await docRef.get();
@@ -125,6 +124,7 @@ export class FirestoreChatRepository implements ChatRepository
 
       return await docRef.set({
         id: conversationId,
+        shopDomain: shopDomain,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -136,7 +136,7 @@ export class FirestoreChatRepository implements ChatRepository
 
   async saveMessage(conversationId: string, role: string, content: string): Promise<Message> {
     try {
-      await this.createOrUpdateConversation(conversationId);
+      //await this.createOrUpdateConversation(conversationId, shopDomain);
 
       const message = {
         conversationId,
@@ -223,5 +223,16 @@ export class FirestoreChatRepository implements ChatRepository
       console.error('Error retrieving customer account URLs:', error);
       return null;
     }
+  }
+
+  async getShopConversationHistory(shopDomainHash: string): Promise<Conversation[]> {
+    const ref = this.firestore.collection('conversation').where('shopDomain', '==', shopDomainHash).orderBy('createdAt', 'desc');
+    const snapshot = await ref.get();
+    const conversations: Conversation[] = snapshot.docs.map((doc) => {
+      const data = doc.data() as Conversation;
+      return data;
+    });
+
+    return conversations;
   }
 }

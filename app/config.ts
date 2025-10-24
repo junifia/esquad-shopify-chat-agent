@@ -2,6 +2,7 @@ import { Firestore } from '@google-cloud/firestore';
 import { StoreSessionStorageService } from './services/sessionStorage.service';
 import { FirestoreSessionStorageRepository } from './infrastructure/firestore-session-repository';
 import { FirestoreChatRepository } from './infrastructure/firestore-chat-repository';
+import { ChatService } from './services/chat.service';
 let firestore: Firestore;
 
 if (process.env.NODE_ENV !== 'production') {
@@ -19,4 +20,6 @@ const storeSessionStorageService = new StoreSessionStorageService(storeSessionSt
 
 const chatRepository = new FirestoreChatRepository(firestore);
 
-export { firestore, storeSessionStorageService, chatRepository };
+const chatService = new ChatService(chatRepository);
+
+export { firestore, storeSessionStorageService, chatRepository, chatService };
