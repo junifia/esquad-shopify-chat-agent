@@ -160,7 +160,7 @@ async function handleChatSession({
     let productsToDisplay = [];
 
     // Save user message to the database
-    await saveMessage(conversationId, 'user', userMessage);
+    await saveMessage(conversationId, "user", userMessage, shopDomain);
 
     // Fetch all messages from the database for this conversation
     const dbMessages = await getConversationHistory(conversationId);
