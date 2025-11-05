@@ -1,44 +1,65 @@
-import { Firestore } from "@google-cloud/firestore";
+import { Firestore, Timestamp } from "@google-cloud/firestore";
 import { Conversation } from "app/domain/message";
 import { ConversationRepository } from "app/domain/conversation-repository";
 
+const conversationConverter = {
+  toFirestore(data: Conversation): FirebaseFirestore.DocumentData {
+    return {
+      id: data.id,
+      shopDomain: data.shopDomain,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  },
+  fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): Conversation {
+    const data = snapshot.data();
+    return {
+      id: data.id,
+      shopDomain: data.shopDomain,
+      messages: [],
+      createdAt:
+        data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : data.createdAt,
+      updatedAt:
+        data.updatedAt instanceof Timestamp
+          ? data.updatedAt.toDate()
+          : data.updatedAt,
+    };
+  }
+};
+
 export class FirestoreConversationRepository implements ConversationRepository {
-  firestore: Firestore;
+  private readonly conversationCollection: FirebaseFirestore.CollectionReference<Conversation>;
+
   constructor(firestore: Firestore) {
-    this.firestore = firestore;
+    this.conversationCollection = firestore
+      .collection('conversation')
+      .withConverter(conversationConverter);
   }
 
   async upsert(conversationId: string, shopDomain: string): Promise<object> {
-    try {
-      const docRef = this.firestore.collection('conversation').doc(conversationId);
-      const docSnap = await docRef.get();
+    const docRef = this.conversationCollection.doc(conversationId);
+    const docSnap = await docRef.get();
+    const now = new Date();
 
-      if (docSnap.exists) {
+    if (docSnap.exists) {
         return await docRef.update({
-          updatedAt: new Date(),
+            updatedAt: now,
         });
-      }
+    }
 
-      return docRef.set({
+    return docRef.set({
         id: conversationId,
         shopDomain: shopDomain,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-    } catch (error) {
-      console.error('Error creating/updating conversation:', error);
-      throw error;
-    }
+        createdAt: now,
+        updatedAt: now,
+    });
   }
 
   async getAllByShop(shopDomainHash: string): Promise<Conversation[]> {
-    const ref = this.firestore.collection('conversation').where('shopDomain', '==', shopDomainHash).orderBy('createdAt', 'desc');
+    const ref = this.conversationCollection.where('shopDomain', '==', shopDomainHash).orderBy('createdAt', 'desc');
     const snapshot = await ref.get();
-    const conversations: Conversation[] = snapshot.docs.map((doc) => {
-      const data = doc.data() as Conversation;
-      return data;
-    });
-
-    return conversations;
+    return snapshot.docs.map((doc) => doc.data());
   }
 }
