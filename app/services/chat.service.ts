@@ -40,7 +40,7 @@ export class ChatService
     return await this.customerTokenRepository.save(conversationId, accessToken, expiresAt);
   }
 
-  async getCustomerToken(conversationId: string): Promise<CustomerToken|null> {
+  async getCustomerToken(conversationId: string): Promise<CustomerToken | null> {
     return await this.customerTokenRepository.find(conversationId);
   }
 

@@ -27,9 +27,7 @@ const messageConverter = {
 };
 
 export class FirestoreMessageRepository implements MessageRepository {
-  private readonly customerAccountUrlsCollection: FirebaseFirestore.CollectionReference<Message>;
   constructor(private readonly firestore: Firestore) {
-    this.customerAccountUrlsCollection = this.firestore.collection('conversation').doc().collection('messages').withConverter(messageConverter);
   }
 
   private getMessagesCollection(conversationId: string): FirebaseFirestore.CollectionReference<Message> {
@@ -41,14 +39,15 @@ export class FirestoreMessageRepository implements MessageRepository {
   }
 
   async save(conversationId: string, role: 'user' | 'assistant', content: string): Promise<Message> {
-    const message = {
+    const message: Message = {
       conversationId,
       role,
       content,
       createdAt: new Date(),
     };
     const docRef = await this.getMessagesCollection(conversationId).add(message);
-    return { id: docRef.id, ...message };
+    const createdDoc = await docRef.get();
+    return createdDoc.data()!;
   }
 
   async get(conversationId: string): Promise<Message[]> {

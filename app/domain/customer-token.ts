@@ -1,8 +1,8 @@
 export interface CustomerToken {
-	id: string;
+	id?: string;
 	conversationId: string;
 	accessToken: string;
-	refreshToken: string | null;
+	refreshToken?: string;
 	expiresAt: Date;
 	createdAt: Date;
 	updatedAt: Date;

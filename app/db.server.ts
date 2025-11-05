@@ -42,7 +42,7 @@ export async function storeCustomerToken(
  * @param {string} conversationId - The conversation ID
  * @returns {Promise<Object|null>} - The customer token or null if not found/expired
  */
-export async function getCustomerToken(conversationId: string): Promise<CustomerToken|null> {
+export async function getCustomerToken(conversationId: string): Promise<CustomerToken | null> {
   return await chatService.getCustomerToken(conversationId);
 }
 
