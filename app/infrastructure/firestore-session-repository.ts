@@ -14,29 +14,27 @@ type SessionDocument = {
 	value: SessionParams;
 };
 
+const sessionConverter: FirestoreDataConverter<SessionDocument> = {
+	toFirestore(data: WithFieldValue<SessionDocument>): DocumentData {
+		return data;
+	},
+
+	fromFirestore(
+		snapshot: QueryDocumentSnapshot<SessionDocument>,
+	): SessionDocument {
+		return snapshot.data();
+	},
+};
+
 export class FirestoreSessionStorageRepository implements SessionStorage {
 	private firestore: Firestore;
 	private collection: CollectionReference<SessionDocument>;
-	private converter: FirestoreDataConverter<SessionDocument>;
-	private tableName: string;
 
 	constructor(firestore: Firestore) {
 		this.firestore = firestore;
-		this.tableName = "shopifySessions";
-		this.converter = {
-			toFirestore(data: WithFieldValue<SessionDocument>): DocumentData {
-				return data;
-			},
-
-			fromFirestore(
-				snapshot: QueryDocumentSnapshot<SessionDocument>,
-			): SessionDocument {
-				return snapshot.data();
-			},
-		};
 		this.collection = this.firestore
-			.collection(this.tableName)
-			.withConverter(this.converter);
+			.collection("shopifySessions")
+			.withConverter(sessionConverter);
 	}
 
 	async storeSession(session: Session): Promise<boolean> {
@@ -59,7 +57,6 @@ export class FirestoreSessionStorageRepository implements SessionStorage {
 				return new Session(data.value);
 			}
 		}
-		return undefined;
 	}
 
 	async deleteSession(id: string): Promise<boolean> {
