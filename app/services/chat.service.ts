@@ -1,21 +1,24 @@
-import { ChatRepository } from "app/domain/chat-repository";
+import { MessageRepository } from "app/domain/message-repository";
 import { CodeVerifierRepository } from "app/domain/code-verifier-repository";
 import { CustomerAccountUrls } from "app/domain/customer-account-urls";
 import { CustomerAccountUrlsRepository } from "app/domain/customer-account-urls-repository";
 import { CustomerToken } from "app/domain/customer-token";
 import { CustomerTokenRepository } from "app/domain/customer-token-repository";
 import { Message } from "app/domain/message";
+import { ConversationRepository } from "app/domain/conversation-repository";
 
 export class ChatService
 {
-  private chatRepository: ChatRepository;
+  private conversationRepository: ConversationRepository;
+  private messageRepository: MessageRepository;
   private codeVerifierRepository: CodeVerifierRepository;
   private customerTokenRepository: CustomerTokenRepository;
   private customerAccountUrlsRepository: CustomerAccountUrlsRepository;
 
-  constructor(chatRepository: ChatRepository, codeVerifierRepository: CodeVerifierRepository, customerTokenRepository: CustomerTokenRepository, customerAccountUrlsRepository: CustomerAccountUrlsRepository){
+  constructor(conversationRepository: ConversationRepository, messageRepository: MessageRepository, codeVerifierRepository: CodeVerifierRepository, customerTokenRepository: CustomerTokenRepository, customerAccountUrlsRepository: CustomerAccountUrlsRepository){
+    this.conversationRepository = conversationRepository;
     this.codeVerifierRepository = codeVerifierRepository;
-    this.chatRepository = chatRepository;
+    this.messageRepository = messageRepository;
     this.customerTokenRepository = customerTokenRepository;
     this.customerAccountUrlsRepository = customerAccountUrlsRepository;
   }
@@ -42,7 +45,7 @@ export class ChatService
   }
 
   async createOrUpdateConversation(conversationId: string, shopDomain: string): Promise<object> {
-    return await this.chatRepository.createOrUpdateConversation(conversationId, shopDomain);
+    return await this.conversationRepository.upsert(conversationId, shopDomain);
   }
 
   async saveMessage(
@@ -55,11 +58,11 @@ export class ChatService
       this.createOrUpdateConversation(conversationId, shopDomain);
     }
 
-    return await this.chatRepository.saveMessage(conversationId, role, content);
+    return await this.messageRepository.save(conversationId, role, content);
   }
 
   async getConversationHistory(conversationId: string): Promise<Message[]> {
-    return await this.chatRepository.getConversationHistory(conversationId);
+    return await this.messageRepository.get(conversationId);
   }
 
   async storeCustomerAccountUrls({
@@ -76,6 +79,6 @@ export class ChatService
   }
 
   async getShopConversationHistory(shopDomain: string){
-    return await this.chatRepository.getShopConversationHistory(`https://${shopDomain}`);
+    return await this.conversationRepository.getAllByShop(`https://${shopDomain}`);
   }
 }
