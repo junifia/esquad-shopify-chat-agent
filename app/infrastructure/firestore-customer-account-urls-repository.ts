@@ -1,11 +1,44 @@
-import { Firestore } from "@google-cloud/firestore";
+import { Firestore, Timestamp } from "@google-cloud/firestore";
 import { CustomerAccountUrls } from "app/domain/customer-account-urls";
 import { CustomerAccountUrlsRepository } from "app/domain/customer-account-urls-repository";
 
+const customerAccountUrlsConverter = {
+  toFirestore(data: CustomerAccountUrls): FirebaseFirestore.DocumentData {
+    return {
+      conversationId: data.conversationId,
+      mcpApiUrl: data.mcpApiUrl,
+      authorizationUrl: data.authorizationUrl,
+      tokenUrl: data.tokenUrl,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  },
+  fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): CustomerAccountUrls {
+    const data = snapshot.data();
+    return {
+      conversationId: data.conversationId,
+      mcpApiUrl: data.mcpApiUrl,
+      authorizationUrl: data.authorizationUrl,
+      tokenUrl: data.tokenUrl,
+      createdAt:
+        data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : data.createdAt,
+      updatedAt:
+        data.updatedAt instanceof Timestamp
+          ? data.updatedAt.toDate()
+          : data.updatedAt,
+    };
+  }
+};
+
 export class FirestoreCustomerAccountUrlsRepository implements CustomerAccountUrlsRepository {
-  firestore: Firestore;
-  constructor(firestore: Firestore) {
-    this.firestore = firestore;
+  private readonly customerAccountUrlsCollection: FirebaseFirestore.CollectionReference<CustomerAccountUrls>;
+
+  constructor(private readonly firestore: Firestore) {
+    this.customerAccountUrlsCollection = this.firestore
+      .collection('customerAccountUrls')
+      .withConverter(customerAccountUrlsConverter);
   }
 
   async save(
@@ -13,57 +46,45 @@ export class FirestoreCustomerAccountUrlsRepository implements CustomerAccountUr
     mcpApiUrl: string,
     authorizationUrl: string,
     tokenUrl: string,
-  ): Promise<object> {
-    try {
-      const docRef = this.firestore
-        .collection('customerAccountUrls')
-        .doc(conversationId);
-      const docSnap = await docRef.get();
-
-      if (docSnap.exists) {
-        const dataToUpdate = {
-          mcpApiUrl,
-          authorizationUrl,
-          tokenUrl,
-          updatedAt: new Date(),
-        };
-        await docRef.update(dataToUpdate);
-        return { ...docSnap.data(), ...dataToUpdate };
-      } else {
-        const dataToCreate = {
+  ): Promise<CustomerAccountUrls> {
+    const docRef = this.customerAccountUrlsCollection.doc(conversationId);
+    const now = new Date();
+    
+    const existingDoc = await docRef.get();
+    
+    const dataToSave = existingDoc.exists 
+      ? {
           conversationId,
           mcpApiUrl,
           authorizationUrl,
           tokenUrl,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          updatedAt: now,
+        }
+      : {
+          conversationId,
+          mcpApiUrl,
+          authorizationUrl,
+          tokenUrl,
+          createdAt: now,
+          updatedAt: now,
         };
-        await docRef.set(dataToCreate);
-        return dataToCreate;
-      }
-    } catch (error) {
-      console.error('Error storing customer account URLs:', error);
-      throw error;
-    }
+
+    await docRef.set(dataToSave, { merge: true });
+    
+    const updatedDoc = await docRef.get();
+    return updatedDoc.data()!;
   }
 
   async find(conversationId: string): Promise<CustomerAccountUrls | null> {
-    try {
-      const docRef = this.firestore
-        .collection('customerAccountUrls')
-        .doc(conversationId);
-      const doc = await docRef.get();
+    console.log(`Finding customer account URLs for conversationId: ${conversationId}`);
+    const docRef = this.customerAccountUrlsCollection.doc(conversationId);
 
-      if (!doc.exists) {
-        return null;
-      }
+    const doc = await docRef.get();
 
-      const data = doc.data();
-
-      return data as CustomerAccountUrls;
-    } catch (error) {
-      console.error('Error retrieving customer account URLs:', error);
+    if (!doc.exists) {
       return null;
     }
+
+    return doc.data()!;
   }
 }

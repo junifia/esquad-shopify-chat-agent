@@ -62,16 +62,16 @@ export class ChatService
     return await this.chatRepository.getConversationHistory(conversationId);
   }
 
-  async storeCustomerAccountUrls(
-    conversationId: string,
-    mcpApiUrl: string,
-    authorizationUrl: string,
-    tokenUrl: string,
-  ): Promise<object> {
-    return this.customerAccountUrlsRepository.save(conversationId, mcpApiUrl, authorizationUrl, tokenUrl);
+  async storeCustomerAccountUrls({
+    conversationId,
+    mcpApiUrl,
+    authorizationUrl,
+    tokenUrl
+  }): Promise<CustomerAccountUrls> {
+    return await this.customerAccountUrlsRepository.save(conversationId, mcpApiUrl, authorizationUrl, tokenUrl);
   }
 
-  async getCustomerAccountUrls(conversationId: string): Promise<CustomerAccountUrls|null> {
+  async getCustomerAccountUrls(conversationId: string): Promise<CustomerAccountUrls | null> {
     return await this.customerAccountUrlsRepository.find(conversationId);
   }
 

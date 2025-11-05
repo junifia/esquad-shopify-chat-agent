@@ -7,7 +7,7 @@ export interface CustomerAccountUrlsRepository
     mcpApiUrl: string,
     authorizationUrl: string,
     tokenUrl: string,
-  ): Promise<object>;
+  ): Promise<CustomerAccountUrls>;
 
   find(conversationId: string): Promise<CustomerAccountUrls | null>;
 }
