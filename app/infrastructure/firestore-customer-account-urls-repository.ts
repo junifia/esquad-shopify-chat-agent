@@ -76,7 +76,6 @@ export class FirestoreCustomerAccountUrlsRepository implements CustomerAccountUr
   }
 
   async find(conversationId: string): Promise<CustomerAccountUrls | null> {
-    console.log(`Finding customer account URLs for conversationId: ${conversationId}`);
     const docRef = this.customerAccountUrlsCollection.doc(conversationId);
 
     const doc = await docRef.get();
@@ -84,7 +83,6 @@ export class FirestoreCustomerAccountUrlsRepository implements CustomerAccountUr
     if (!doc.exists) {
       return null;
     }
-
     return doc.data()!;
   }
 }

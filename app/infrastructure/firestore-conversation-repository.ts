@@ -57,7 +57,7 @@ export class FirestoreConversationRepository implements ConversationRepository {
     });
   }
 
-  async getAllByShop(shopDomainHash: string): Promise<Conversation[]> {
+  async findAllByShop(shopDomainHash: string): Promise<Conversation[]> {
     const ref = this.conversationCollection.where('shopDomain', '==', shopDomainHash).orderBy('createdAt', 'desc');
     const snapshot = await ref.get();
     return snapshot.docs.map((doc) => doc.data());

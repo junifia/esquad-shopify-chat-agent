@@ -8,5 +8,5 @@ export interface MessageRepository
     content: string,
     shopDomain?: string
   ): Promise<Message>;
-  get(conversationId: string): Promise<Message[]>;
+  find(conversationId: string): Promise<Message[]>;
 }

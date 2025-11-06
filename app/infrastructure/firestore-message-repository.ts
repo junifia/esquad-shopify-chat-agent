@@ -47,10 +47,10 @@ export class FirestoreMessageRepository implements MessageRepository {
     };
     const docRef = await this.getMessagesCollection(conversationId).add(message);
     const createdDoc = await docRef.get();
-    return createdDoc.data()!;
+    return createdDoc.data() as Message;
   }
 
-  async get(conversationId: string): Promise<Message[]> {
+  async find(conversationId: string): Promise<Message[]> {
     const messagesRef = this.getMessagesCollection(conversationId);
     const snapshot = await messagesRef
       .orderBy('createdAt', 'asc')
