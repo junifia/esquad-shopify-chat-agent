@@ -1,6 +1,5 @@
 export interface Conversation {
   id: string;
-  messages?: Message[];
   shopDomain: string;
   createdAt: Date;
   updatedAt: Date;
