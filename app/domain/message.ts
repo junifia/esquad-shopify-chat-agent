@@ -6,7 +6,6 @@ export interface Conversation {
 }
 
 export interface Message {
-  id?: string;
   conversationId: string;
   role: 'user' | 'assistant';
   content: string;

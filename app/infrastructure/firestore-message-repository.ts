@@ -14,7 +14,6 @@ const messageConverter = {
   fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): Message {
     const data = snapshot.data();
     return {
-      id: snapshot.id,
       conversationId: data.conversationId,
       role: data.role,
       content: data.content,
