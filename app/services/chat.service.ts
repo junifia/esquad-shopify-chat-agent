@@ -62,7 +62,7 @@ export class ChatService
   }
 
   async getConversationHistory(conversationId: string): Promise<Message[]> {
-    return await this.messageRepository.get(conversationId);
+    return await this.messageRepository.find(conversationId);
   }
 
   async storeCustomerAccountUrls({
@@ -79,6 +79,6 @@ export class ChatService
   }
 
   async getShopConversationHistory(shopDomain: string){
-    return await this.conversationRepository.getAllByShop(`https://${shopDomain}`);
+    return this.conversationRepository.findAllByShop(`https://${shopDomain}`);
   }
 }
