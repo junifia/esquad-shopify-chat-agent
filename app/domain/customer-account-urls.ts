@@ -3,6 +3,6 @@ export interface CustomerAccountUrls {
   mcpApiUrl: string;
   authorizationUrl: string;
   tokenUrl: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

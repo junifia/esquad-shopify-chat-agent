@@ -7,10 +7,12 @@ export async function loader({ request }) {
   const chatConversations = await chatService.getShopConversationHistory(
     session.shop,
   );
+
   return { chatConversations };
 }
 
 export default function Index() {
+  /** @type {{ chatConversations: import("../domain/message").Conversation[] }} */
   const { chatConversations } = useLoaderData();
   return (
     <s-page heading="Esquad">
@@ -27,6 +29,9 @@ export default function Index() {
   );
 }
 
+/**
+ * @param {{ conversations: import("../domain/message").Conversation[] }} props
+ */
 const ConversationsTable = ({ conversations }) => (
   <s-section>
     <s-table>
@@ -45,13 +50,12 @@ const ConversationsTable = ({ conversations }) => (
   </s-section>
 );
 
+/**
+ * @param {{ conversation: import("../domain/message").Conversation }} props
+ */
 const ConversationRow = ({ conversation }) => {
-  const createdAtDate = new Date(
-    conversation.createdAt._seconds * 1000,
-  ).toLocaleString();
-  const updatedAtDate = new Date(
-    conversation.updatedAt._seconds * 1000,
-  ).toLocaleString();
+  const createdAtDate = conversation.createdAt.toLocaleString();
+  const updatedAtDate = conversation.updatedAt.toLocaleString();
   return (
     <s-table-row>
       <s-table-cell>{conversation.id}</s-table-cell>

@@ -9,22 +9,22 @@ export class StoreSessionStorageService implements SessionStorage {
 	}
 
 	async storeSession(session: Session): Promise<boolean> {
-    return await this.storeSessionRepository.storeSession(session);
+    return this.storeSessionRepository.storeSession(session);
 	}
 
 	async loadSession(id: string): Promise<Session | undefined> {
-    return await this.storeSessionRepository.loadSession(id);
+    return this.storeSessionRepository.loadSession(id);
 	}
 
 	async deleteSession(id: string): Promise<boolean> {
-    return await this.storeSessionRepository.deleteSession(id);
+    return this.storeSessionRepository.deleteSession(id);
 	}
 
 	async deleteSessions(ids: string[]): Promise<boolean> {
-    return await this.storeSessionRepository.deleteSessions(ids);
+    return this.storeSessionRepository.deleteSessions(ids);
 	}
 
 	async findSessionsByShop(shop: string): Promise<Session[]> {
-    return await this.storeSessionRepository.findSessionsByShop(shop);
+    return this.storeSessionRepository.findSessionsByShop(shop);
 	}
 }
