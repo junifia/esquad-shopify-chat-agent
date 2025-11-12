@@ -1,15 +1,17 @@
-import { Firestore } from '@google-cloud/firestore';
-import { StoreSessionStorageService } from './services/sessionStorage.service';
-import { FirestoreSessionStorageRepository } from './infrastructure/firestore-session-repository';
-import { FirestoreMessageRepository } from './infrastructure/firestore-message-repository';
-import { ChatService } from './services/chat.service';
-import { FirestoreCodeVerifier } from './infrastructure/firestore-code-verifier';
-import { FirestoreCustomerTokenRepository } from './infrastructure/firestore-customer-token-repository';
-import { FirestoreCustomerAccountUrlsRepository } from './infrastructure/firestore-customer-account-urls-repository';
-import { FirestoreConversationRepository } from './infrastructure/firestore-conversation-repository';
+import { Firestore } from "@google-cloud/firestore";
+import { StoreSessionStorageService } from "./services/sessionStorage.service";
+import { FirestoreSessionStorageRepository } from "./infrastructure/firestore-session-repository";
+import { FirestoreMessageRepository } from "./infrastructure/firestore-message-repository";
+import { ChatService } from "./services/chat.service";
+import { FirestoreCodeVerifier } from "./infrastructure/firestore-code-verifier";
+import { FirestoreCustomerTokenRepository } from "./infrastructure/firestore-customer-token-repository";
+import { FirestoreCustomerAccountUrlsRepository } from "./infrastructure/firestore-customer-account-urls-repository";
+import { FirestoreConversationRepository } from "./infrastructure/firestore-conversation-repository";
+import { ShopSettingService } from "./services/shopSetting.service";
+import { FirestoreShopSettingRepository } from "./infrastructure/firestore-shop-setting-repository";
 let firestore: Firestore;
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   firestore = new Firestore({
     projectId: process.env.GCP_PROJECT_ID,
     keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
@@ -18,9 +20,13 @@ if (process.env.NODE_ENV !== 'production') {
   firestore = new Firestore();
 }
 
-const storeSessionStorageRepository = new FirestoreSessionStorageRepository(firestore);
+const storeSessionStorageRepository = new FirestoreSessionStorageRepository(
+  firestore,
+);
 
-const storeSessionStorageService = new StoreSessionStorageService(storeSessionStorageRepository);
+const storeSessionStorageService = new StoreSessionStorageService(
+  storeSessionStorageRepository,
+);
 
 const messageRepository = new FirestoreMessageRepository(firestore);
 
@@ -30,16 +36,28 @@ const codeVerifierRepository = new FirestoreCodeVerifier(firestore);
 
 const customerTokenRepository = new FirestoreCustomerTokenRepository(firestore);
 
-const customerAccountUrlsRepository = new FirestoreCustomerAccountUrlsRepository(firestore);
+const customerAccountUrlsRepository =
+  new FirestoreCustomerAccountUrlsRepository(firestore);
 
-const chatService = new ChatService(conversationRepository, messageRepository, codeVerifierRepository, customerTokenRepository, customerAccountUrlsRepository);
+const shopSettingRepository = new FirestoreShopSettingRepository(firestore);
 
-export { 
-  firestore, 
-  storeSessionStorageService, 
+const chatService = new ChatService(
+  conversationRepository,
+  messageRepository,
+  codeVerifierRepository,
+  customerTokenRepository,
+  customerAccountUrlsRepository,
+);
+
+const shopSettingService = new ShopSettingService(shopSettingRepository);
+
+export {
+  firestore,
+  storeSessionStorageService,
   messageRepository as chatRepository,
-  chatService, 
-  customerTokenRepository, 
-  codeVerifierRepository, 
-  customerAccountUrlsRepository 
-  };
+  chatService,
+  customerTokenRepository,
+  codeVerifierRepository,
+  customerAccountUrlsRepository,
+  shopSettingService,
+};
