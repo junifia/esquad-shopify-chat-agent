@@ -68,17 +68,17 @@ export default function SettingsPage() {
     };
   }, [isDirty]);
 
-  function handleSave() {
+  function handleSubmit() {
     const data = {
       customSystemPrompt: formState.customSystemPrompt,
     };
     submit(data, { method: "post" });
   }
   return (
-    <s-page heading="Esquad">
+    <s-page heading="Esquad settings">
       <s-section>
         <s-heading>Settings</s-heading>
-        <form data-save-bar id="setting-form" onSubmit={handleSave}>
+        <form data-save-bar id="setting-form" onSubmit={handleSubmit}>
           <s-text-field
             label="Custom System Prompt"
             error={errors.customSystemPrompt}
@@ -103,5 +103,5 @@ export default function SettingsPage() {
 }
 
 const NoCustomSystemPrompt = () => (
-  <s-shop>No custom system prompt detected, using eSquad default</s-shop>
+  <s-chip>No custom system prompt detected, using eSquad default</s-chip>
 );
