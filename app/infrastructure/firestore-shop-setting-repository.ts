@@ -56,7 +56,7 @@ export class FirestoreShopSettingRepository implements ShopSettingRepository {
     return updatedDoc.data()!;
   }
 
-  async findShopDomain(shopDomain: string): Promise<ShopSetting | null> {
+  async findByShopDomain(shopDomain: string): Promise<ShopSetting | null> {
     const snapshot = await this.shopSettingCollectionRef
       .where("shopDomain", "==", shopDomain)
       .get();

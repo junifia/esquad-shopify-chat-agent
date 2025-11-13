@@ -9,7 +9,7 @@ export class ShopSettingService {
 
   private async getDefaultSystemPrompt(): Promise<string> {
     const shopSettingCustom =
-      await this.shopSettingRespository.findShopDomain("default");
+      await this.shopSettingRespository.findByShopDomain("default");
 
     if (!shopSettingCustom) {
       throw new Error("No default shop found");
@@ -22,7 +22,7 @@ export class ShopSettingService {
 
   async getSystemPrompt(shopDomain: string): Promise<string> {
     const shopSettingShopCustom =
-      await this.shopSettingRespository.findShopDomain(shopDomain);
+      await this.shopSettingRespository.findByShopDomain(shopDomain);
 
     if (!shopSettingShopCustom || !shopSettingShopCustom.systemPrompt) {
       return this.getDefaultSystemPrompt();
