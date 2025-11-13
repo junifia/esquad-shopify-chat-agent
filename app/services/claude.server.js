@@ -32,7 +32,7 @@ export function createClaudeService(apiKey = process.env.CLAUDE_API_KEY) {
     // Get system prompt from configuration
     const systemPrompt = await shopSettingService.getSystemPrompt(shopDomain);
     // Create stream
-    const stream = anthropic.messages.stream({
+    const stream = await anthropic.messages.stream({
       model: AppConfig.api.defaultModel,
       max_tokens: AppConfig.api.maxTokens,
       system: systemPrompt,
