@@ -72,13 +72,12 @@ async function handleChatRequest(request) {
     if (!userMessage) {
       return new Response(
         JSON.stringify({ error: AppConfig.errorMessages.missingMessage }),
-        { status: 400, headers: getSseHeaders(request) }
+        { status: 400, headers: getSseHeaders(request) },
       );
     }
 
     // Generate or use existing conversation ID
     const conversationId = body.conversation_id || Date.now().toString();
-    const promptType = body.prompt_type || AppConfig.api.defaultPromptType;
 
     // Create a stream for the response
     const responseStream = createSseStream(async (stream) => {
@@ -86,19 +85,18 @@ async function handleChatRequest(request) {
         request,
         userMessage,
         conversationId,
-        promptType,
-        stream
+        stream,
       });
     });
 
     return new Response(responseStream, {
-      headers: getSseHeaders(request)
+      headers: getSseHeaders(request),
     });
   } catch (error) {
-    console.error('Error in chat request handler:', error);
+    console.error("Error in chat request handler:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: getCorsHeaders(request)
+      headers: getCorsHeaders(request),
     });
   }
 }
@@ -137,7 +135,6 @@ async function handleChatSession({
     mcpApiUrl,
   );
 
-  //try {
   // Send conversation ID to client
   stream.sendMessage({ type: "id", conversation_id: conversationId });
 
@@ -286,10 +283,6 @@ async function handleChatSession({
       products: productsToDisplay,
     });
   }
-  // } catch (error) {
-  //   // The streaming handler takes care of error handling
-  //   throw error;
-  // }
 }
 
 /**
