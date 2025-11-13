@@ -61,7 +61,6 @@ export class ShopSettingService {
     } else {
       shopSetting.systemPrompt = systemPrompt;
     }
-
     const newShopSetting =
       await this.shopSettingRespository.update(shopSetting);
     if (!newShopSetting) {

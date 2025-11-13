@@ -48,6 +48,7 @@ export class FirestoreShopSettingRepository implements ShopSettingRepository {
     await docRef.set(
       {
         systemPrompt: shopSetting.systemPrompt,
+        shopDomain: shopSetting.shopDomain,
       },
       { merge: true },
     );
