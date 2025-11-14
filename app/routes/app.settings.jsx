@@ -22,13 +22,12 @@ export async function loader({ request }) {
 
 export async function action({ request }) {
   console.log("action called");
-  const { session, redirect } = await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
   const { shop } = session;
 
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
 
-  console.log("action -> ", data, shop);
   const shopSetting = await shopSettingService.saveCustomSystemPrompt(
     shop,
     data.customSystemPrompt,
@@ -46,17 +45,20 @@ export default function SettingsPage() {
   const navigation = useNavigation();
   const submit = useSubmit();
 
-  // This setup for state management mirrors the sample file.
   const [initialFormState, setInitialFormState] = useState(loaderData);
   const [formState, setFormState] = useState(loaderData);
 
   const isLoading = navigation.state === "submitting";
-  // const errorBanner = actionData?.error ? (
-  //   <Banner title="Error" tone="critical"></Banner>
-  // ): null;
+  const errorBanner = actionData?.error ? (
+    <s-banner title="Error" tone="critical"></s-banner>
+  ): null;
 
-  const sucessBanner = actionData?.customSystemPrompt ? (
-    <s-banner tone="success">Saved with success</s-banner>
+  const sucessBanner =
+    actionData?.customSystemPrompt && !isLoading ? (
+      <s-banner tone="success">Saved with success</s-banner>
+    ) : null;
+  const loadingBanner = isLoading ? (
+    <s-banner tone="info">Saving</s-banner>
   ) : null;
 
   const isDirty =
@@ -71,61 +73,56 @@ export default function SettingsPage() {
   // Manages the Shopify Save Bar visibility based on form changes.
   useEffect(() => {
     if (isDirty) {
-      //window.shopify.saveBar.show("setting-form");
+      window.shopify.saveBar.show("setting-form");
     } else {
-      //window.shopify.saveBar.hide("setting-form");
+      window.shopify.saveBar.hide("setting-form");
     }
     return () => {
-      //window.shopify.saveBar.hide("setting-form");
+      window.shopify.saveBar.hide("setting-form");
     };
   }, [isDirty]);
 
   function handleSubmit() {
-    console.log("handleSubmit!!!!!!");
     const data = {
       customSystemPrompt: formState.customSystemPrompt,
     };
-    //window.shopify.saveBar.hide("setting-form");
     submit(data, { method: "post" });
   }
   function handleDiscard() {
     setFormState(initialFormState);
-    //window.shopify.saveBar.hide("setting-form");
+    window.shopify.saveBar.hide("setting-form");
   }
   return (
     <s-page heading="Esquad settings">
       <s-section>
         <s-heading>Settings</s-heading>
+        <SaveBar id="setting-form">
+          <button variant="primary" onClick={handleSubmit}></button>
+          <button onClick={handleDiscard}></button>
+        </SaveBar>
         {sucessBanner}
-        <form onSubmit={handleSubmit}>
-          <s-text-field
-            label="Custom System Prompt"
-            error={errors.customSystemPrompt}
-            autoComplete="off"
-            name="customSystemPrompt"
-            value={formState.customSystemPrompt}
-            placeholder="Enter a system prompt"
-            onInput={(e) =>
-              setFormState({
-                ...formState,
-                customSystemPrompt: e.target.value,
-              })
-            }
-          />
-          {loaderData.customSystemPrompt === "" ? (
-            <NoCustomSystemPrompt />
-          ) : null}
-          <s-divider />
-          {isDirty ? (
-            <s-button
-              variant="primary"
-              submit
-              loading={isLoading}
-              onClick={handleSubmit}
-            >
-              Save
-            </s-button>
-          ) : null}
+        {loadingBanner}
+        <form>
+          <s-box padding="base">
+            <s-text-field
+              label="Custom System Prompt"
+              error={errors.customSystemPrompt}
+              autoComplete="off"
+              name="customSystemPrompt"
+              value={formState.customSystemPrompt}
+              placeholder="Enter a system prompt"
+              onInput={(e) =>
+                setFormState({
+                  ...formState,
+                  customSystemPrompt: e.target.value,
+                })
+              }
+            />
+            <s-divider color="base"></s-divider>
+            {loaderData.customSystemPrompt === "" ? (
+              <NoCustomSystemPrompt />
+            ) : null}
+          </s-box>
         </form>
       </s-section>
     </s-page>
