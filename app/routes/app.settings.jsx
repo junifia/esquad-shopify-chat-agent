@@ -7,6 +7,7 @@ import {
 import { authenticate } from "../shopify.server";
 import { shopSettingService } from "../config";
 import { useEffect, useState } from "react";
+import { SaveBar } from "@shopify/app-bridge-react";
 
 export async function loader({ request }) {
   const { session } = await authenticate.admin(request);
@@ -20,19 +21,22 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
+  console.log("action called");
   const { session, redirect } = await authenticate.admin(request);
   const { shop } = session;
 
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
 
-  console.log(data, shop);
-  await shopSettingService.saveCustomSystemPrompt(
+  console.log("action -> ", data, shop);
+  const shopSetting = await shopSettingService.saveCustomSystemPrompt(
     shop,
     data.customSystemPrompt,
   );
 
-  return redirect("/app/settings");
+  return {
+    customSystemPrompt: shopSetting.systemPrompt || "",
+  };
 }
 
 export default function SettingsPage() {
@@ -46,7 +50,15 @@ export default function SettingsPage() {
   const [initialFormState, setInitialFormState] = useState(loaderData);
   const [formState, setFormState] = useState(loaderData);
 
-  const isSaving = navigation.state === "submitting";
+  const isLoading = navigation.state === "submitting";
+  // const errorBanner = actionData?.error ? (
+  //   <Banner title="Error" tone="critical"></Banner>
+  // ): null;
+
+  const sucessBanner = actionData?.customSystemPrompt ? (
+    <s-banner tone="success">Saved with success</s-banner>
+  ) : null;
+
   const isDirty =
     JSON.stringify(formState) !== JSON.stringify(initialFormState);
 
@@ -59,26 +71,33 @@ export default function SettingsPage() {
   // Manages the Shopify Save Bar visibility based on form changes.
   useEffect(() => {
     if (isDirty) {
-      window.shopify.saveBar.show("setting-form");
+      //window.shopify.saveBar.show("setting-form");
     } else {
-      window.shopify.saveBar.hide("setting-form");
+      //window.shopify.saveBar.hide("setting-form");
     }
     return () => {
-      window.shopify.saveBar.hide("setting-form");
+      //window.shopify.saveBar.hide("setting-form");
     };
   }, [isDirty]);
 
   function handleSubmit() {
+    console.log("handleSubmit!!!!!!");
     const data = {
       customSystemPrompt: formState.customSystemPrompt,
     };
+    //window.shopify.saveBar.hide("setting-form");
     submit(data, { method: "post" });
+  }
+  function handleDiscard() {
+    setFormState(initialFormState);
+    //window.shopify.saveBar.hide("setting-form");
   }
   return (
     <s-page heading="Esquad settings">
       <s-section>
         <s-heading>Settings</s-heading>
-        <form data-save-bar id="setting-form" onSubmit={handleSubmit}>
+        {sucessBanner}
+        <form onSubmit={handleSubmit}>
           <s-text-field
             label="Custom System Prompt"
             error={errors.customSystemPrompt}
@@ -93,8 +112,19 @@ export default function SettingsPage() {
               })
             }
           />
-          {formState.customSystemPrompt === "" ? (
+          {loaderData.customSystemPrompt === "" ? (
             <NoCustomSystemPrompt />
+          ) : null}
+          <s-divider />
+          {isDirty ? (
+            <s-button
+              variant="primary"
+              submit
+              loading={isLoading}
+              onClick={handleSubmit}
+            >
+              Save
+            </s-button>
           ) : null}
         </form>
       </s-section>
