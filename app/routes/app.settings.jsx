@@ -21,17 +21,20 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
-  console.log("action called");
   const { session } = await authenticate.admin(request);
   const { shop } = session;
 
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
-
-  const shopSetting = await shopSettingService.saveCustomSystemPrompt(
-    shop,
-    data.customSystemPrompt,
-  );
+  let shopSetting;
+  try {
+    shopSetting = await shopSettingService.saveCustomSystemPrompt(
+      shop,
+      data.customSystemPrompt,
+    );
+  } catch (error) {
+    return { error: error.message };
+  }
 
   return {
     customSystemPrompt: shopSetting.systemPrompt || "",
@@ -49,28 +52,29 @@ export default function SettingsPage() {
   const [formState, setFormState] = useState(loaderData);
 
   const isLoading = navigation.state === "submitting";
+
   const errorBanner = actionData?.error ? (
-    <s-banner title="Error" tone="critical"></s-banner>
-  ): null;
+    <s-banner title="Error" tone="critical">
+      An error occured. Details: {actionData.error}
+    </s-banner>
+  ) : null;
 
   const sucessBanner =
     actionData?.customSystemPrompt && !isLoading ? (
       <s-banner tone="success">Saved with success</s-banner>
     ) : null;
   const loadingBanner = isLoading ? (
-    <s-banner tone="info">Saving</s-banner>
+    <s-banner tone="info">Saving in progress</s-banner>
   ) : null;
 
   const isDirty =
     JSON.stringify(formState) !== JSON.stringify(initialFormState);
 
-  // Update the form state when the loader provides new data.
   useEffect(() => {
     setInitialFormState(loaderData);
     setFormState(loaderData);
   }, [loaderData]);
 
-  // Manages the Shopify Save Bar visibility based on form changes.
   useEffect(() => {
     if (isDirty) {
       window.shopify.saveBar.show("setting-form");
@@ -93,7 +97,7 @@ export default function SettingsPage() {
     window.shopify.saveBar.hide("setting-form");
   }
   return (
-    <s-page heading="Esquad settings">
+    <s-page heading="eSquad settings">
       <s-section>
         <s-heading>Settings</s-heading>
         <SaveBar id="setting-form">
@@ -101,6 +105,7 @@ export default function SettingsPage() {
           <button onClick={handleDiscard}></button>
         </SaveBar>
         {sucessBanner}
+        {errorBanner}
         {loadingBanner}
         <form>
           <s-box padding="base">
