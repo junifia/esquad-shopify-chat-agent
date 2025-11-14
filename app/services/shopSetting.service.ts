@@ -2,15 +2,15 @@ import { ShopSettingRepository } from "app/domain/shop-setting-repository";
 import { ShopSetting } from "app/domain/shop-settings";
 
 export class ShopSettingService {
-  private shopSettingRespository: ShopSettingRepository;
+  private shopSettingRepository: ShopSettingRepository;
 
-  constructor(shopSettingRespository: ShopSettingRepository) {
-    this.shopSettingRespository = shopSettingRespository;
+  constructor(shopSettingRepository: ShopSettingRepository) {
+    this.shopSettingRepository = shopSettingRepository;
   }
 
   private async getDefaultSystemPrompt(): Promise<string> {
     const shopSettingCustom =
-      await this.shopSettingRespository.findByShopDomain("default");
+      await this.shopSettingRepository.findByShopDomain("default");
 
     if (!shopSettingCustom) {
       throw new Error("No default shop found");
@@ -23,7 +23,7 @@ export class ShopSettingService {
 
   async getSystemPrompt(shopDomain: string): Promise<string> {
     const shopSettingShopCustom =
-      await this.shopSettingRespository.findByShopDomain(shopDomain);
+      await this.shopSettingRepository.findByShopDomain(shopDomain);
 
     if (!shopSettingShopCustom || !shopSettingShopCustom.systemPrompt) {
       return this.getDefaultSystemPrompt();
@@ -33,7 +33,7 @@ export class ShopSettingService {
   }
   async getCustomSystemPrompt(shopDomain: string): Promise<string | null> {
     const shopSettingShopCustom =
-      await this.shopSettingRespository.findByShopDomain(shopDomain);
+      await this.shopSettingRepository.findByShopDomain(shopDomain);
     if (!shopSettingShopCustom) {
       throw new Error("Shop setting don't exist");
     }
@@ -50,7 +50,7 @@ export class ShopSettingService {
     systemPrompt: string,
   ): Promise<ShopSetting> {
     const shopSetting =
-      await this.shopSettingRespository.findByShopDomain(shopDomain);
+      await this.shopSettingRepository.findByShopDomain(shopDomain);
 
     if (!shopSetting) {
       throw new Error(`shop setting of domain ${shopDomain} not found`);
@@ -61,8 +61,7 @@ export class ShopSettingService {
     } else {
       shopSetting.systemPrompt = systemPrompt;
     }
-    const newShopSetting =
-      await this.shopSettingRespository.update(shopSetting);
+    const newShopSetting = await this.shopSettingRepository.update(shopSetting);
     if (!newShopSetting) {
       throw new Error("Error whiles saving shop setting");
     }
