@@ -4,21 +4,21 @@ import { chatService } from "../config";
 
 export async function loader({ request }) {
   const { session } = await authenticate.admin(request);
-  const chatConversations = await chatService.getShopConversationHistory(
-    session.shop,
-  );
+  const shopDomain = session.shop;
+  const chatConversations =
+    await chatService.getShopConversationHistory(shopDomain);
 
-  return { chatConversations };
+  return { chatConversations, shopDomain };
 }
 
 export default function Index() {
   /** @type {{ chatConversations: import("../domain/message").Conversation[] }} */
-  const { chatConversations } = useLoaderData();
+  const { chatConversations, shopDomain } = useLoaderData();
   return (
     <s-page heading="Esquad">
       <ui-title-bar title="Shop chat agent reference app" />
       <s-section>
-        <s-heading>eSquad Chat agent</s-heading>
+        <s-heading>eSquad Chat agent {shopDomain}</s-heading>
         {chatConversations.length === 0 ? (
           <EmptyState />
         ) : (
