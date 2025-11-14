@@ -6,10 +6,45 @@ import {
 } from "react-router";
 import { authenticate } from "../shopify.server";
 import { shopSettingService } from "../config";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { SaveBar } from "@shopify/app-bridge-react";
 
-export async function loader({ request }) {
+// Define an interface for the form state and loader/action data
+interface SettingsData {
+  customSystemPrompt: string;
+}
+
+// Interface for the data being submitted
+interface SubmitData {
+  [key: string]: string;
+}
+
+interface ActionResponse {
+  customSystemPrompt?: string;
+  error?: string;
+}
+
+interface LoaderResponse {
+  customSystemPrompt: string;
+}
+
+// Extend the Window interface to include the shopify object for TypeScript
+declare global {
+  interface Window {
+    shopify: {
+      saveBar: {
+        show: (id: string) => void;
+        hide: (id: string) => void;
+      };
+    };
+  }
+}
+
+export async function loader({
+  request,
+}: {
+  request: Request;
+}): Promise<LoaderResponse> {
   const { session } = await authenticate.admin(request);
   const customSystemPrompt = await shopSettingService.getCustomSystemPrompt(
     session.shop,
@@ -20,20 +55,31 @@ export async function loader({ request }) {
   };
 }
 
-export async function action({ request }) {
+export async function action({
+  request,
+}: {
+  request: Request;
+}): Promise<ActionResponse | Response> {
   const { session } = await authenticate.admin(request);
   const { shop } = session;
 
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
   let shopSetting;
+
+  if (typeof data.customSystemPrompt !== "string") {
+    return { error: "Invalid customSystemPrompt" };
+  }
+
   try {
     shopSetting = await shopSettingService.saveCustomSystemPrompt(
       shop,
       data.customSystemPrompt,
     );
-  } catch (error) {
-    return { error: error.message };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred.";
+    return { error: errorMessage };
   }
 
   return {
@@ -44,29 +90,15 @@ export async function action({ request }) {
 export default function SettingsPage() {
   const loaderData = useLoaderData();
   const actionData = useActionData();
-  const errors = actionData?.errors || {};
   const navigation = useNavigation();
   const submit = useSubmit();
+  const saveBarId = useId();
 
-  const [initialFormState, setInitialFormState] = useState(loaderData);
-  const [formState, setFormState] = useState(loaderData);
+  const [initialFormState, setInitialFormState] =
+    useState<SettingsData>(loaderData);
+  const [formState, setFormState] = useState<SettingsData>(loaderData);
 
   const isLoading = navigation.state === "submitting";
-
-  const errorBanner = actionData?.error ? (
-    <s-banner title="Error" tone="critical">
-      An error occured. Details: {actionData.error}
-    </s-banner>
-  ) : null;
-
-  const sucessBanner =
-    actionData?.customSystemPrompt && !isLoading ? (
-      <s-banner tone="success">Saved with success</s-banner>
-    ) : null;
-  const loadingBanner = isLoading ? (
-    <s-banner tone="info">Saving in progress</s-banner>
-  ) : null;
-
   const isDirty =
     JSON.stringify(formState) !== JSON.stringify(initialFormState);
 
@@ -77,29 +109,49 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (isDirty) {
-      window.shopify.saveBar.show("setting-form");
+      window.shopify.saveBar.show(saveBarId);
     } else {
-      window.shopify.saveBar.hide("setting-form");
+      window.shopify.saveBar.hide(saveBarId);
     }
-  }, [isDirty]);
+  }, [isDirty, saveBarId]);
 
   function handleSubmit() {
-    const data = {
+    const data: SubmitData = {
       customSystemPrompt: formState.customSystemPrompt,
     };
     submit(data, { method: "post" });
   }
+
   function handleDiscard() {
     setFormState(initialFormState);
-    window.shopify.saveBar.hide("setting-form");
   }
+
+  const errorBanner = actionData?.error ? (
+    <s-banner tone="critical">
+      An error occured. Details: {actionData.error}
+    </s-banner>
+  ) : null;
+
+  const sucessBanner =
+    actionData?.customSystemPrompt != null && !isLoading ? (
+      <s-banner tone="success">Saved with success</s-banner>
+    ) : null;
+
+  const loadingBanner = isLoading ? (
+    <s-banner tone="info">Saving in progress</s-banner>
+  ) : null;
+
   return (
     <s-page heading="eSquad settings">
       <s-section>
         <s-heading>Settings</s-heading>
-        <SaveBar id="setting-form">
-          <button variant="primary" onClick={handleSubmit}></button>
-          <button onClick={handleDiscard}></button>
+        <SaveBar id={saveBarId}>
+          <button
+            type="button"
+            variant="primary"
+            onClick={handleSubmit}
+          ></button>
+          <button type="button" onClick={handleDiscard}></button>
         </SaveBar>
         {sucessBanner}
         {errorBanner}
@@ -108,15 +160,14 @@ export default function SettingsPage() {
           <s-box padding="base">
             <s-text-field
               label="Custom System Prompt"
-              error={errors.customSystemPrompt}
-              autoComplete="off"
+              autocomplete="off"
               name="customSystemPrompt"
               value={formState.customSystemPrompt}
               placeholder="Enter a system prompt"
-              onInput={(e) =>
+              onInput={(e: { currentTarget: { value: string } }) =>
                 setFormState({
                   ...formState,
-                  customSystemPrompt: e.target.value,
+                  customSystemPrompt: e.currentTarget.value,
                 })
               }
             />
