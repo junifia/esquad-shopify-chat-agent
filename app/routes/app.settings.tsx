@@ -155,7 +155,7 @@ export default function SettingsPage() {
         {loadingBanner}
         <form>
           <s-box padding="base">
-            <s-text-field
+            <s-text-area
               label="Custom System Prompt"
               autocomplete="off"
               name="customSystemPrompt"
