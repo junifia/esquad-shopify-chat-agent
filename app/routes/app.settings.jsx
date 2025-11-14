@@ -81,9 +81,6 @@ export default function SettingsPage() {
     } else {
       window.shopify.saveBar.hide("setting-form");
     }
-    return () => {
-      window.shopify.saveBar.hide("setting-form");
-    };
   }, [isDirty]);
 
   function handleSubmit() {
