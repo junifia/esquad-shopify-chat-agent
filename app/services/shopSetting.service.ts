@@ -63,7 +63,7 @@ export class ShopSettingService {
     }
     const newShopSetting = await this.shopSettingRepository.update(shopSetting);
     if (!newShopSetting) {
-      throw new Error("Error whiles saving shop setting");
+      throw new Error("Error while saving shop setting");
     }
 
     return newShopSetting;
