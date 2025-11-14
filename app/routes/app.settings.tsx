@@ -77,8 +77,7 @@ export async function action({
       data.customSystemPrompt,
     );
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred.";
+    const errorMessage = "An error occurred, please try again later.";
     return { error: errorMessage };
   }
 
@@ -127,9 +126,7 @@ export default function SettingsPage() {
   }
 
   const errorBanner = actionData?.error ? (
-    <s-banner tone="critical">
-      An error occured. Details: {actionData.error}
-    </s-banner>
+    <s-banner tone="critical">{actionData.error}</s-banner>
   ) : null;
 
   const sucessBanner =
