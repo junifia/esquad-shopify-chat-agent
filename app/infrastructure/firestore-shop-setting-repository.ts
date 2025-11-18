@@ -1,6 +1,7 @@
 import { Firestore } from "@google-cloud/firestore";
 import type { ShopSetting } from "app/domain/shop-settings";
 import type { ShopSettingRepository } from "app/domain/shop-setting-repository";
+import { ShopSettingsNotFound } from "app/domain/shop-settings-not-found-exception";
 
 const shopSettingConverter = {
   toFirestore(data: ShopSetting): FirebaseFirestore.DocumentData {
@@ -56,12 +57,12 @@ export class FirestoreShopSettingRepository implements ShopSettingRepository {
     return updatedDoc.data()!;
   }
 
-  async findByShopDomain(shopDomain: string): Promise<ShopSetting | null> {
+  async findByShopDomain(shopDomain: string): Promise<ShopSetting> {
     const snapshot = await this.shopSettingCollectionRef
       .where("shopDomain", "==", shopDomain)
       .get();
     if (snapshot.empty) {
-      return null;
+      throw new ShopSettingsNotFound();
     }
     const doc = snapshot.docs[0];
     return doc.data();

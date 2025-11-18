@@ -1,13 +1,17 @@
 import { ShopSettingRepository } from "app/domain/shop-setting-repository";
+import { ShopSettingsNotFound } from "app/domain/shop-settings-not-found-exception";
 
 export class ShopSettingService {
   private shopSettingRespository: ShopSettingRepository;
+
+  private readonly CUSTOM_PROMPT_WRAPPER =
+    "Here are the merchant's custom instructions that you must follow: <custom_instructions>{{CUSTOM_SYSTEM_PROMPT}}</custom_instructions>";
 
   constructor(shopSettingRespository: ShopSettingRepository) {
     this.shopSettingRespository = shopSettingRespository;
   }
 
-  private async getDefaultSystemPrompt(): Promise<string> {
+  async getDefaultSystemPrompt(): Promise<string> {
     const shopSettingCustom =
       await this.shopSettingRespository.findByShopDomain("default");
 
@@ -21,13 +25,40 @@ export class ShopSettingService {
   }
 
   async getSystemPrompt(shopDomain: string): Promise<string> {
-    const shopSettingShopCustom =
-      await this.shopSettingRespository.findByShopDomain(shopDomain);
+    const [shopCustomPrompt, defaultSystemPrompt] = await Promise.all([
+      this.getCustomSystemPrompt(shopDomain),
+      this.getDefaultSystemPrompt(),
+    ]);
 
-    if (!shopSettingShopCustom || !shopSettingShopCustom.systemPrompt) {
-      return this.getDefaultSystemPrompt();
+    const customPromptSection = shopCustomPrompt
+      ? this.generateShopCustomPrompt(shopCustomPrompt)
+      : "";
+
+    return defaultSystemPrompt.replace(
+      "{{ESQUAD_SHOP_CUSTOM_PROMPT}}",
+      customPromptSection,
+    );
+  }
+
+  private generateShopCustomPrompt(shopCustomPrompt: string): string {
+    return this.CUSTOM_PROMPT_WRAPPER.replace(
+      "{{CUSTOM_SYSTEM_PROMPT}}",
+      shopCustomPrompt,
+    );
+  }
+
+  private async getCustomSystemPrompt(
+    shopDomain: string,
+  ): Promise<string | null> {
+    try {
+      const shopSetting =
+        await this.shopSettingRespository.findByShopDomain(shopDomain);
+      return shopSetting.systemPrompt || null;
+    } catch (error) {
+      if (error instanceof ShopSettingsNotFound) {
+        return null;
+      }
+      throw error;
     }
-
-    return shopSettingShopCustom.systemPrompt;
   }
 }
