@@ -8,8 +8,6 @@
     color: white;
   }
 
-  
-
   /* Responsive adjustments for smaller screens */
   @media (max-width: 480px) {
     .shop-ai-chat-window {
@@ -27,7 +25,7 @@
       border-radius: 0;
     }
 
-    .shop-ai-chat-container {
+    #shop-ai-chat-container {
       bottom: 10px;
       right: 10px;
     }
