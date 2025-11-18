@@ -42,7 +42,7 @@ export class FirestoreShopSettingRepository implements ShopSettingRepository {
     return newShopSetting;
   }
 
-  async update(shopSetting: ShopSetting): Promise<ShopSetting | null> {
+  async update(shopSetting: ShopSetting): Promise<ShopSetting> {
     const docRef = this.shopSettingCollectionRef.doc(shopSetting.id);
 
     await docRef.set(
