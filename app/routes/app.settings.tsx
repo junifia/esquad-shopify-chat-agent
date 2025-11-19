@@ -180,5 +180,5 @@ export default function SettingsPage() {
 }
 
 const NoCustomSystemPrompt = () => (
-  <s-chip>No custom system prompt detected, using eSquad default</s-chip>
+  <s-chip>No system prompt customization</s-chip>
 );
