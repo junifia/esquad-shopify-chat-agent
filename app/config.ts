@@ -7,7 +7,7 @@ import { FirestoreCodeVerifier } from "./infrastructure/firestore-code-verifier"
 import { FirestoreCustomerTokenRepository } from "./infrastructure/firestore-customer-token-repository";
 import { FirestoreCustomerAccountUrlsRepository } from "./infrastructure/firestore-customer-account-urls-repository";
 import { FirestoreConversationRepository } from "./infrastructure/firestore-conversation-repository";
-import { ShopSettingService } from "./services/shopSetting.service";
+import { ShopSettingService } from "./services/shop-setting.service";
 import { FirestoreShopSettingRepository } from "./infrastructure/firestore-shop-setting-repository";
 let firestore: Firestore;
 
