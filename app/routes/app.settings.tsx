@@ -63,25 +63,24 @@ export async function action({
 
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
-  let shopSetting;
 
   if (typeof data.customSystemPrompt !== "string") {
     return { error: "Invalid customSystemPrompt" };
   }
 
   try {
-    shopSetting = await shopSettingService.saveCustomSystemPrompt(
+    const shopSetting = await shopSettingService.saveCustomSystemPrompt(
       shop,
       data.customSystemPrompt,
     );
-  } catch (error: unknown) {
-    const errorMessage = "An error occurred, please try again later.";
-    return { error: errorMessage };
-  }
 
-  return {
-    customSystemPrompt: shopSetting.systemPrompt || "",
-  };
+    return {
+      customSystemPrompt: shopSetting.systemPrompt || "",
+    };
+  } catch (error: unknown) {
+    console.error(error);
+    return { error: "An error occurred, please try again later." };
+  }
 }
 
 export default function SettingsPage() {
