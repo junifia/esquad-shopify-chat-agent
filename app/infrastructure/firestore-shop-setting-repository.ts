@@ -6,6 +6,7 @@ import type {
 import { Firestore, FieldValue } from "@google-cloud/firestore";
 import type { ShopSettingRepository } from "app/domain/shop-setting-repository";
 import type { ShopSetting } from "app/domain/shop-settings";
+import { ShopSettingsAlreadyExist } from "app/domain/shop-settings-already-exist";
 import { ShopSettingsNotFound } from "app/domain/shop-settings-not-found-exception";
 
 const shopSettingConverter = {
@@ -40,6 +41,13 @@ export class FirestoreShopSettingRepository implements ShopSettingRepository {
   }
 
   async add(shopDomain: string): Promise<ShopSetting> {
+    const snapshot = await this.shopSettingCollectionRef
+      .where("shopDomain", "==", shopDomain)
+      .get();
+    if (!snapshot.empty) {
+      throw new ShopSettingsAlreadyExist();
+    }
+
     const docRef = this.shopSettingCollectionRef.doc();
     const newShopSetting: ShopSetting = {
       id: docRef.id,
