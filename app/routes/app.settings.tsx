@@ -46,12 +46,10 @@ export async function loader({
   request: Request;
 }): Promise<LoaderResponse> {
   const { session } = await authenticate.admin(request);
-  const customSystemPrompt = await shopSettingService.getCustomSystemPrompt(
-    session.shop,
-  );
+  const shopSetting = await shopSettingService.getSetting(session.shop);
 
   return {
-    customSystemPrompt: customSystemPrompt || "",
+    customSystemPrompt: shopSetting?.systemPrompt || "",
   };
 }
 
