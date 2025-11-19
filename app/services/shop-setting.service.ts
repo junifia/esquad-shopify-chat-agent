@@ -13,16 +13,22 @@ export class ShopSettingService {
   }
 
   async getDefaultSystemPrompt(): Promise<string> {
-    const shopSettingCustom =
-      await this.shopSettingRespository.findByShopDomain("default");
+    try {
+      const defaultShopSettings =
+        await this.shopSettingRespository.findByShopDomain("default");
 
-    if (!shopSettingCustom) {
-      throw new Error("No default shop found");
+      if (!defaultShopSettings.systemPrompt) {
+        throw new Error("No system prompt set on default shop");
+      }
+
+      return defaultShopSettings.systemPrompt;
+    } catch (error) {
+      if (error instanceof ShopSettingsNotFound) {
+        throw new Error("No default shop found");
+      }
+
+      throw error;
     }
-    if (!shopSettingCustom.systemPrompt) {
-      throw new Error("No system prompt set on default shop");
-    }
-    return shopSettingCustom.systemPrompt;
   }
 
   async getSystemPrompt(shopDomain: string): Promise<string> {
@@ -35,10 +41,7 @@ export class ShopSettingService {
       ? this.generateShopCustomPrompt(shopCustomPrompt)
       : "";
 
-    return defaultSystemPrompt.replace(
-      "",
-      customPromptSection,
-    );
+    return defaultSystemPrompt.replace("", customPromptSection);
   }
 
   private generateShopCustomPrompt(shopCustomPrompt: string): string {
