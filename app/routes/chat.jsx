@@ -139,12 +139,10 @@ async function handleChatSession({
   stream.sendMessage({ type: "id", conversation_id: conversationId });
 
   // Connect to MCP servers and get available tools
-  let storefrontMcpTools = [],
-    customerMcpTools = [];
 
   try {
-    storefrontMcpTools = await mcpClient.connectToStorefrontServer();
-    customerMcpTools = await mcpClient.connectToCustomerServer();
+    const storefrontMcpTools = await mcpClient.connectToStorefrontServer();
+    const customerMcpTools = await mcpClient.connectToCustomerServer();
 
     console.log(`Connected to MCP with ${storefrontMcpTools.length} tools`);
     console.log(
