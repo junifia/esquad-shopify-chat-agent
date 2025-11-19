@@ -2,9 +2,12 @@ import { Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { authenticate } from "../shopify.server";
+import { shopSettingService } from "/app/config";
 
 export const loader = async ({ request }) => {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
+
+  initShopSetting(session.shop);
 
   return { apiKey: process.env.SHOPIFY_API_KEY || "" };
 };
@@ -31,3 +34,10 @@ export function ErrorBoundary() {
 export const headers = (headersArgs) => {
   return boundary.headers(headersArgs);
 };
+
+async function initShopSetting(shopDomain) {
+  const systemPrompt = await shopSettingService.getSetting(shopDomain);
+  if (!systemPrompt) {
+    shopSettingService.addSetting(shopDomain);
+  }
+}
