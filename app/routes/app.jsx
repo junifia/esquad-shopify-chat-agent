@@ -2,12 +2,16 @@ import { Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { authenticate } from "../shopify.server";
-import { shopSettingService } from "/app/config";
+import { shopSettingService } from "../config";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
-
-  initShopSetting(session.shop);
+  
+  try {
+    await initShopSetting(session.shop);
+  } catch (error) {
+    throw new Response("Database Init Failed", { status: 500 });
+  }
 
   return { apiKey: process.env.SHOPIFY_API_KEY || "" };
 };
@@ -38,6 +42,6 @@ export const headers = (headersArgs) => {
 async function initShopSetting(shopDomain) {
   const systemPrompt = await shopSettingService.getSetting(shopDomain);
   if (!systemPrompt) {
-    shopSettingService.addSetting(shopDomain);
+    await shopSettingService.addSetting(shopDomain);
   }
 }
