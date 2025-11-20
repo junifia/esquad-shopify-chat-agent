@@ -1,4 +1,4 @@
-const statuses = ['Invalid', 'Forbidden', 'NotFound', 'Accepted', 'EntityPresent'] as const;
+const statuses = ["Invalid", "Forbidden", "NotFound", "Accepted", "Conflict"] as const;
 
 export type Status = (typeof statuses)[number];
 
