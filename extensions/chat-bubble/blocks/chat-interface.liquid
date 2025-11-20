@@ -1,10 +1,10 @@
 {{ 'chat.css' | asset_url | stylesheet_tag }}
-{{ 'chat-bubble.css' | asset_url | stylesheet_tag }}
+{{ 'chat-widget.css' | asset_url | stylesheet_tag }}
 {{ 'chat-section.css' | asset_url | stylesheet_tag }}
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <div id="shop-ai-chat-container" class="{{ block.settings.chat_integration_type }}">
-  <div class="shop-ai-chat-bubble" style="background-color: {{ block.settings.chat_bubble_color }}">
+  <div class="shop-ai-chat-widget" style="background-color: {{ block.settings.chat_widget_color }}">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
@@ -42,7 +42,7 @@
   const chatIntegrationType = "{{ block.settings.chat_integration_type }}";
 
   document.addEventListener('DOMContentLoaded', () => {
-    if (chatIntegrationType === "bubble") {
+    if (chatIntegrationType === "widget") {
       const chatContainer = document.getElementById('shop-ai-chat-container');
       if (chatContainer) {
         document.body.appendChild(chatContainer);
@@ -58,8 +58,8 @@
   "settings": [
     {
       "type": "color",
-      "id": "chat_bubble_color",
-      "label": "Chat Bubble Color",
+      "id": "chat_widget_color",
+      "label": "Chat Widget Color",
       "default": "#5046e4"
     },
     {
@@ -68,15 +68,15 @@
       "label": "Integration type",
       "options": [
         {
-          "value": "bubble",
-          "label": "Bubble"
+          "value": "widget",
+          "label": "Widget"
         },
         {
           "value": "section",
           "label": "Section"
         }
       ],
-      "default": "bubble"
+      "default": "widget"
     },
     {
       "type": "text",

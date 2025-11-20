@@ -1,7 +1,7 @@
 #shop-ai-chat-container.section {
   margin-top: 20px;
   margin-bottom: 20px;
-  .shop-ai-chat-bubble {
+  .shop-ai-chat-widget {
     display: none;
   }
 
@@ -16,7 +16,9 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
   }
   .shop-ai-chat-close {
     display: none;

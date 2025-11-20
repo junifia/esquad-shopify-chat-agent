@@ -28,12 +28,12 @@
         // Cache DOM elements
         this.elements = {
           container: container,
-          chatBubble: container.querySelector('.shop-ai-chat-bubble'),
-          chatWindow: container.querySelector('.shop-ai-chat-window'),
-          closeButton: container.querySelector('.shop-ai-chat-close'),
-          chatInput: container.querySelector('.shop-ai-chat-input input'),
-          sendButton: container.querySelector('.shop-ai-chat-send'),
-          messagesContainer: container.querySelector('.shop-ai-chat-messages')
+          chatWidget: container.querySelector(".shop-ai-chat-widget"),
+          chatWindow: container.querySelector(".shop-ai-chat-window"),
+          closeButton: container.querySelector(".shop-ai-chat-close"),
+          chatInput: container.querySelector(".shop-ai-chat-input input"),
+          sendButton: container.querySelector(".shop-ai-chat-send"),
+          messagesContainer: container.querySelector(".shop-ai-chat-messages"),
         };
 
         // Detect mobile device
@@ -51,11 +51,17 @@
       /**
        * Set up all event listeners for UI interactions
        */
-      setupEventListeners: function() {
-        const { chatBubble, closeButton, chatInput, sendButton, messagesContainer } = this.elements;
+      setupEventListeners: function () {
+        const {
+          chatWidget,
+          closeButton,
+          chatInput,
+          sendButton,
+          messagesContainer,
+        } = this.elements;
 
         // Toggle chat window visibility
-        chatBubble.addEventListener('click', () => this.toggleChatWindow());
+        chatWidget.addEventListener("click", () => this.toggleChatWindow());
 
         // Close chat window
         closeButton.addEventListener('click', () => this.closeChatWindow());

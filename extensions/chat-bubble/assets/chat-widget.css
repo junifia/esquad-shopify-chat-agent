@@ -1,4 +1,4 @@
-#shop-ai-chat-container.bubble {
+#shop-ai-chat-container.widget {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -6,7 +6,7 @@
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
-  .shop-ai-chat-bubble {
+  .shop-ai-chat-widget {
     width: 60px;
     height: 60px;
     background-color: #5046e4;
@@ -44,9 +44,9 @@
   }
 
   .shop-ai-chat-window.active {
-      opacity: 1;
-      pointer-events: all;
-      transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
   }
   .shop-ai-chat-window .shop-ai-chat-close {
     background: none;
@@ -60,17 +60,17 @@
 }
 
 @media (max-width: 480px) {
-  .shop-ai-chat-bubble {
+  .shop-ai-chat-widget {
     width: 50px;
     height: 50px;
   }
 
-  .shop-ai-chat-bubble svg {
+  .shop-ai-chat-widget svg {
     width: 25px;
     height: 25px;
   }
 }
 
-.shop-ai-chat-bubble:hover {
+.shop-ai-chat-widget:hover {
   transform: scale(1.05);
 }
