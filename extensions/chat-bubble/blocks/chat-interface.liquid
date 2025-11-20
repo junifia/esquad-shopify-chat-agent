@@ -1,8 +1,10 @@
 {{ 'chat.css' | asset_url | stylesheet_tag }}
+{{ 'chat-widget.css' | asset_url | stylesheet_tag }}
+{{ 'chat-section.css' | asset_url | stylesheet_tag }}
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<div class="shop-ai-chat-container">
-  <div class="shop-ai-chat-bubble" style="background-color: {{ block.settings.chat_bubble_color }}">
+<div id="shop-ai-chat-container" class="{{ block.settings.chat_integration_type }}">
+  <div class="shop-ai-chat-widget" style="background-color: {{ block.settings.chat_widget_color }}">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
@@ -33,21 +35,47 @@
 <script src="{{ 'chat.js' | asset_url }}" defer></script>
 <script>
   window.shopChatConfig = {
-    welcomeMessage: {{ block.settings.welcome_message | json }}
+    welcomeMessage: "{{ 'chat.welcomeMessage' | t }}";
   };
   window.shopId = {{ shop.id }};
+  const chatIntegrationType = "{{ block.settings.chat_integration_type }}";
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (chatIntegrationType === "widget") {
+      const chatContainer = document.getElementById('shop-ai-chat-container');
+      if (chatContainer) {
+        document.body.appendChild(chatContainer);
+      }
+    }
+  });
 </script>
 
 {% schema %}
 {
   "name": "AI Chat Assistant",
-  "target": "body",
+  "target": "section",
   "settings": [
     {
       "type": "color",
-      "id": "chat_bubble_color",
-      "label": "Chat Bubble Color",
+      "id": "chat_widget_color",
+      "label": "Chat Widget Color",
       "default": "#5046e4"
+    },
+    {
+      "type": "select",
+      "id": "chat_integration_type",
+      "label": "Integration type",
+      "options": [
+        {
+          "value": "widget",
+          "label": "Widget"
+        },
+        {
+          "value": "section",
+          "label": "Section"
+        }
+      ],
+      "default": "widget"
     },
     {
       "type": "text",

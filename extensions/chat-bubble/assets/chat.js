@@ -28,12 +28,12 @@
         // Cache DOM elements
         this.elements = {
           container: container,
-          chatBubble: container.querySelector('.shop-ai-chat-bubble'),
-          chatWindow: container.querySelector('.shop-ai-chat-window'),
-          closeButton: container.querySelector('.shop-ai-chat-close'),
-          chatInput: container.querySelector('.shop-ai-chat-input input'),
-          sendButton: container.querySelector('.shop-ai-chat-send'),
-          messagesContainer: container.querySelector('.shop-ai-chat-messages')
+          chatWidget: container.querySelector(".shop-ai-chat-widget"),
+          chatWindow: container.querySelector(".shop-ai-chat-window"),
+          closeButton: container.querySelector(".shop-ai-chat-close"),
+          chatInput: container.querySelector(".shop-ai-chat-input input"),
+          sendButton: container.querySelector(".shop-ai-chat-send"),
+          messagesContainer: container.querySelector(".shop-ai-chat-messages"),
         };
 
         // Detect mobile device
@@ -51,11 +51,17 @@
       /**
        * Set up all event listeners for UI interactions
        */
-      setupEventListeners: function() {
-        const { chatBubble, closeButton, chatInput, sendButton, messagesContainer } = this.elements;
+      setupEventListeners: function () {
+        const {
+          chatWidget,
+          closeButton,
+          chatInput,
+          sendButton,
+          messagesContainer,
+        } = this.elements;
 
         // Toggle chat window visibility
-        chatBubble.addEventListener('click', () => this.toggleChatWindow());
+        chatWidget.addEventListener("click", () => this.toggleChatWindow());
 
         // Close chat window
         closeButton.addEventListener('click', () => this.closeChatWindow());
@@ -652,7 +658,7 @@
 
           // No messages, show welcome message
           if (!data.messages || data.messages.length === 0) {
-            const welcomeMessage = window.shopChatConfig?.welcomeMessage || "👋 Hi there! How can I help you today?";
+            const welcomeMessage = window.shopChatConfig?.welcomeMessage;
             ShopAIChat.Message.add(welcomeMessage, 'assistant', messagesContainer);
             return;
           }
@@ -684,7 +690,7 @@
           }
 
           // Show error and welcome message
-          const welcomeMessage = window.shopChatConfig?.welcomeMessage || "👋 Hi there! How can I help you today?";
+          const welcomeMessage = window.shopChatConfig?.welcomeMessage;
           ShopAIChat.Message.add(welcomeMessage, 'assistant', messagesContainer);
 
           // Clear the conversation ID since we couldn't fetch this conversation
@@ -904,7 +910,7 @@
      */
     init: function() {
       // Initialize UI
-      const container = document.querySelector('.shop-ai-chat-container');
+      const container = document.getElementById('shop-ai-chat-container');
       if (!container) return;
 
       this.UI.init(container);
@@ -917,7 +923,7 @@
         this.API.fetchChatHistory(conversationId, this.UI.elements.messagesContainer);
       } else {
         // No previous conversation, show welcome message
-        const welcomeMessage = window.shopChatConfig?.welcomeMessage || "👋 Hi there! How can I help you today?";
+        const welcomeMessage = window.shopChatConfig?.welcomeMessage;
         this.Message.add(welcomeMessage, 'assistant', this.UI.elements.messagesContainer);
       }
     }
