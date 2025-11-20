@@ -1,18 +1,27 @@
-import { Firestore } from "@google-cloud/firestore";
-import type { ShopSetting } from "app/domain/shop-settings";
+import type {
+  CollectionReference,
+  DocumentData,
+  QueryDocumentSnapshot,
+} from "@google-cloud/firestore";
+import { Firestore, FieldValue } from "@google-cloud/firestore";
 import type { ShopSettingRepository } from "app/domain/shop-setting-repository";
+import type { ShopSetting } from "app/domain/shop-settings";
+import { ShopSettingsAlreadyExist } from "app/domain/shop-settings-already-exist";
 import { ShopSettingsNotFound } from "app/domain/shop-settings-not-found-exception";
 
 const shopSettingConverter = {
-  toFirestore(data: ShopSetting): FirebaseFirestore.DocumentData {
-    return {
+  toFirestore(data: ShopSetting): DocumentData {
+    const payload: DocumentData = {
       shopDomain: data.shopDomain,
-      systemPrompt: data.systemPrompt,
     };
+
+    if (data.systemPrompt) {
+      payload.systemPrompt = data.systemPrompt;
+    }
+
+    return payload;
   },
-  fromFirestore(
-    snapshot: FirebaseFirestore.QueryDocumentSnapshot,
-  ): ShopSetting {
+  fromFirestore(snapshot: QueryDocumentSnapshot): ShopSetting {
     const data = snapshot.data();
     return {
       id: snapshot.id,
@@ -23,7 +32,7 @@ const shopSettingConverter = {
 };
 
 export class FirestoreShopSettingRepository implements ShopSettingRepository {
-  private readonly shopSettingCollectionRef: FirebaseFirestore.CollectionReference<ShopSetting>;
+  private readonly shopSettingCollectionRef: CollectionReference<ShopSetting>;
 
   constructor(private readonly firestore: Firestore) {
     this.shopSettingCollectionRef = this.firestore
@@ -32,6 +41,13 @@ export class FirestoreShopSettingRepository implements ShopSettingRepository {
   }
 
   async add(shopDomain: string): Promise<ShopSetting> {
+    const snapshot = await this.shopSettingCollectionRef
+      .where("shopDomain", "==", shopDomain)
+      .get();
+    if (!snapshot.empty) {
+      throw new ShopSettingsAlreadyExist();
+    }
+
     const docRef = this.shopSettingCollectionRef.doc();
     const newShopSetting: ShopSetting = {
       id: docRef.id,
@@ -46,12 +62,15 @@ export class FirestoreShopSettingRepository implements ShopSettingRepository {
   async update(shopSetting: ShopSetting): Promise<ShopSetting> {
     const docRef = this.shopSettingCollectionRef.doc(shopSetting.id);
 
-    await docRef.set(
-      {
-        systemPrompt: shopSetting.systemPrompt,
-      },
-      { merge: true },
-    );
+    const payload = {
+      shopDomain: shopSetting.shopDomain,
+      systemPrompt:
+        shopSetting.systemPrompt === ""
+          ? FieldValue.delete()
+          : shopSetting.systemPrompt,
+    };
+
+    await docRef.update(payload);
 
     const updatedDoc = await docRef.get();
     return updatedDoc.data()!;

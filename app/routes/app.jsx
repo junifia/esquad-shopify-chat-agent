@@ -2,9 +2,16 @@ import { Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { authenticate } from "../shopify.server";
+import { shopSettingService } from "../config";
 
 export const loader = async ({ request }) => {
-  await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
+  
+  try {
+    await shopSettingService.init(session.shop);
+  } catch (error) {
+    throw new Response("Database Init Failed", { status: 500 });
+  }
 
   return { apiKey: process.env.SHOPIFY_API_KEY || "" };
 };
@@ -16,6 +23,7 @@ export default function App() {
     <AppProvider embedded apiKey={apiKey}>
       <s-app-nav>
         <s-link href="/app">Home</s-link>
+        <s-link href="/app/settings">Settings</s-link>
       </s-app-nav>
       <Outlet />
     </AppProvider>
