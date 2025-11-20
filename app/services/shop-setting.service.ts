@@ -6,6 +6,8 @@ export class ShopSettingService {
 
   private readonly CUSTOM_PROMPT_WRAPPER =
     "Here are the merchant's custom instructions that you must follow: <custom_instructions>{{CUSTOM_SYSTEM_PROMPT}}</custom_instructions>";
+  private readonly CUSTOM_PROMPT_WRAPPER_PLACEHOLDER =
+    "{{CUSTOM_SYSTEM_PROMPT}}";
   private readonly CUSTOM_PROMPT_PLACEHOLDER = "{{ESQUAD_SHOP_CUSTOM_PROMPT}}";
 
   constructor(shopSettingRespository: ShopSettingRepository) {
@@ -41,12 +43,15 @@ export class ShopSettingService {
       ? this.generateShopCustomPrompt(shopCustomPrompt)
       : "";
 
-    return defaultSystemPrompt.replace("", customPromptSection);
+    return defaultSystemPrompt.replace(
+      this.CUSTOM_PROMPT_PLACEHOLDER,
+      customPromptSection,
+    );
   }
 
   private generateShopCustomPrompt(shopCustomPrompt: string): string {
     return this.CUSTOM_PROMPT_WRAPPER.replace(
-      this.CUSTOM_PROMPT_PLACEHOLDER,
+      this.CUSTOM_PROMPT_WRAPPER_PLACEHOLDER,
       shopCustomPrompt,
     );
   }
