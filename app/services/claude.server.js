@@ -4,8 +4,7 @@
  */
 import { Anthropic } from "@anthropic-ai/sdk";
 import AppConfig from "./config.server";
-import systemPrompts from "../prompts/prompts.json";
-
+import { shopSettingService } from "../config";
 /**
  * Creates a Claude service instance
  * @param {string} apiKey - Claude API key
@@ -19,7 +18,6 @@ export function createClaudeService(apiKey = process.env.CLAUDE_API_KEY) {
    * Streams a conversation with Claude
    * @param {Object} params - Stream parameters
    * @param {Array} params.messages - Conversation history
-   * @param {string} params.promptType - The type of system prompt to use
    * @param {Array} params.tools - Available tools for Claude
    * @param {Object} streamHandlers - Stream event handlers
    * @param {Function} streamHandlers.onText - Handles text chunks
@@ -27,34 +25,32 @@ export function createClaudeService(apiKey = process.env.CLAUDE_API_KEY) {
    * @param {Function} streamHandlers.onToolUse - Handles tool use requests
    * @returns {Promise<Object>} The final message
    */
-  const streamConversation = async ({
-    messages,
-    promptType = AppConfig.api.defaultPromptType,
-    tools
-  }, streamHandlers) => {
-    // Get system prompt from configuration or use default
-    const systemInstruction = getSystemPrompt(promptType);
-
+  const streamConversation = async (
+    { messages, shopDomain, tools },
+    streamHandlers,
+  ) => {
+    // Get system prompt from configuration
+    const systemPrompt = await shopSettingService.getSystemPrompt(shopDomain);
     // Create stream
     const stream = await anthropic.messages.stream({
       model: AppConfig.api.defaultModel,
       max_tokens: AppConfig.api.maxTokens,
-      system: systemInstruction,
+      system: systemPrompt,
       messages,
-      tools: tools && tools.length > 0 ? tools : undefined
+      tools: tools && tools.length > 0 ? tools : undefined,
     });
 
     // Set up event handlers
     if (streamHandlers.onText) {
-      stream.on('text', streamHandlers.onText);
+      stream.on("text", streamHandlers.onText);
     }
 
     if (streamHandlers.onMessage) {
-      stream.on('message', streamHandlers.onMessage);
+      stream.on("message", streamHandlers.onMessage);
     }
 
     if (streamHandlers.onContentBlock) {
-      stream.on('contentBlock', streamHandlers.onContentBlock);
+      stream.on("contentBlock", streamHandlers.onContentBlock);
     }
 
     // Wait for final message
@@ -72,22 +68,11 @@ export function createClaudeService(apiKey = process.env.CLAUDE_API_KEY) {
     return finalMessage;
   };
 
-  /**
-   * Gets the system prompt content for a given prompt type
-   * @param {string} promptType - The prompt type to retrieve
-   * @returns {string} The system prompt content
-   */
-  const getSystemPrompt = (promptType) => {
-    return systemPrompts.systemPrompts[promptType]?.content ||
-      systemPrompts.systemPrompts[AppConfig.api.defaultPromptType].content;
-  };
-
   return {
     streamConversation,
-    getSystemPrompt
   };
 }
 
 export default {
-  createClaudeService
+  createClaudeService,
 };
