@@ -8,7 +8,7 @@ export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   
   try {
-    await initShopSetting(session.shop);
+    await shopSettingService.init(session.shop);
   } catch (error) {
     throw new Response("Database Init Failed", { status: 500 });
   }
@@ -38,10 +38,3 @@ export function ErrorBoundary() {
 export const headers = (headersArgs) => {
   return boundary.headers(headersArgs);
 };
-
-async function initShopSetting(shopDomain) {
-  const systemPrompt = await shopSettingService.getSetting(shopDomain);
-  if (!systemPrompt) {
-    await shopSettingService.addSetting(shopDomain);
-  }
-}

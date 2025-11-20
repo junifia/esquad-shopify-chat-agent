@@ -13,6 +13,13 @@ export class ShopSettingService {
     this.shopSettingRepository = shopSettingRespository;
   }
 
+  async init(shopDomain: string) {
+    const systemPrompt = await this.getSetting(shopDomain);
+    if (!systemPrompt) {
+      await this.addSetting(shopDomain);
+    }
+  }
+
   async getDefaultSystemPrompt(): Promise<string> {
     try {
       const defaultShopSettings =
