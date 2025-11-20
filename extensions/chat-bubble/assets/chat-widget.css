@@ -1,0 +1,76 @@
+#shop-ai-chat-container.widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  .shop-ai-chat-widget {
+    width: 60px;
+    height: 60px;
+    background-color: #5046e4;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+  }
+
+  .shop-ai-chat-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 90vw;
+    max-width: 450px;
+    height: 70vh;
+    height: calc(var(--viewport-height, 100vh) * 0.7);
+    max-height: 650px;
+    min-height: 350px;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .shop-ai-chat-window.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+  }
+  .shop-ai-chat-window .shop-ai-chat-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 0;
+    line-height: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .shop-ai-chat-widget {
+    width: 50px;
+    height: 50px;
+  }
+
+  .shop-ai-chat-widget svg {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+.shop-ai-chat-widget:hover {
+  transform: scale(1.05);
+}
