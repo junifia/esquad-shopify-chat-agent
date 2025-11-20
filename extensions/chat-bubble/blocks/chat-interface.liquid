@@ -36,7 +36,7 @@
 <script>
   window.shopChatConfig = {
     promptType: {{ block.settings.system_prompt | json }},
-    welcomeMessage: {{ block.settings.welcome_message | json }}
+    welcomeMessage: "{{ 'chat.welcomeMessage' | t }}";
   };
   window.shopId = {{ shop.id }};
   const chatIntegrationType = "{{ block.settings.chat_integration_type }}";
