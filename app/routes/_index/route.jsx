@@ -8,7 +8,7 @@ export const loader = async ({ request }) => {
     throw redirect(`/app?${url.searchParams.toString()}`);
   }
 
-  return null;
+  return null
 };
 
 export default function App() {
@@ -16,7 +16,9 @@ export default function App() {
     <div className={styles.index}>
       <div className={styles.content}>
         <h1 className={styles.heading}>Shop chat agent reference app</h1>
-        <p className={styles.text}>A reference app for shop chat agent.</p>
+        <p className={styles.text}>
+          A reference app for shop chat agent.
+        </p>
       </div>
     </div>
   );
