@@ -474,11 +474,9 @@
         let currentMessageElement = null;
 
         try {
-          const promptType = window.shopChatConfig?.promptType || "standardAssistant";
           const requestBody = JSON.stringify({
             message: userMessage,
             conversation_id: conversationId,
-            prompt_type: promptType
           });
 
           const streamUrl = 'http://localhost:3000/chat';
