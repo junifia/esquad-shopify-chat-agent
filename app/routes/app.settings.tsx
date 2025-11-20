@@ -165,17 +165,14 @@ export default function SettingsPage() {
                 })
               }
             />
-            <s-divider color="base"></s-divider>
-            {loaderData.customSystemPrompt === "" ? (
-              <NoCustomSystemPrompt />
-            ) : null}
+            <s-chip>
+              Set specific instructions to guide how your chatbot interacts with
+              customers. Control tone, style, and the type of answers it
+              provides.
+            </s-chip>
           </s-box>
         </form>
       </s-section>
     </s-page>
   );
 }
-
-const NoCustomSystemPrompt = () => (
-  <s-chip>No system prompt customization</s-chip>
-);
