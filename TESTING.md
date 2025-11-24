@@ -78,5 +78,3 @@ test/
 - Mock external dependencies (Firestore, Shopify API, etc.)
 - Test edge cases and error conditions
 - Keep tests fast by avoiding I/O operations
-
-Your Shopify app now has a solid foundation for unit testing! 🎉

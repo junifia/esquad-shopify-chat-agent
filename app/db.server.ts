@@ -97,6 +97,11 @@ export async function storeCustomerAccountUrls({
   mcpApiUrl,
   authorizationUrl,
   tokenUrl,
+}: {
+  conversationId: string;
+  mcpApiUrl: string;
+  authorizationUrl: string;
+  tokenUrl: string;
 }): Promise<object> {
   return chatService.storeCustomerAccountUrls({conversationId, mcpApiUrl, authorizationUrl, tokenUrl});
 }

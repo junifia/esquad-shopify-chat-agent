@@ -16,7 +16,6 @@ const conversationConverter = {
     return {
       id: data.id,
       shopDomain: data.shopDomain,
-      messages: [],
       createdAt:
         data.createdAt instanceof Timestamp
           ? data.createdAt.toDate()
