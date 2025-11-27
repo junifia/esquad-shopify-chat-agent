@@ -70,6 +70,11 @@ export class ChatService
     mcpApiUrl,
     authorizationUrl,
     tokenUrl
+  }: {
+    conversationId: string;
+    mcpApiUrl: string;
+    authorizationUrl: string;
+    tokenUrl: string;
   }): Promise<CustomerAccountUrls> {
     return await this.customerAccountUrlsRepository.save(conversationId, mcpApiUrl, authorizationUrl, tokenUrl);
   }
