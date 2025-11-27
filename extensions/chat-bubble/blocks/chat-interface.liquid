@@ -31,11 +31,11 @@
     </div>
   </div>
 </div>
-
-<script src="{{ 'chat.js' | asset_url }}" defer></script>
 <script>
   window.shopChatConfig = {
-    welcomeMessage: "{{ 'chat.welcomeMessage' | t }}";
+    welcomeMessage: "{{ 'chat.welcomeMessage' | t }}",
+    turfGrassServiceEndpoint: "http://localhost:4321/api/report",
+    customerZipCode: "{{ customer.default_address.zip }}",
   };
   window.shopId = {{ shop.id }};
   const chatIntegrationType = "{{ block.settings.chat_integration_type }}";
@@ -49,6 +49,7 @@
     }
   });
 </script>
+<script src="{{ 'chat.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
@@ -82,6 +83,11 @@
       "id": "welcome_message",
       "label": "Welcome Message",
       "default": "👋 Hi there! How can I help you today?"
+    },
+    {
+      "type": "text",
+      "id": "neosol_service_endpoint",
+      "label":"Neosol service url"
     }
   ]
 }
