@@ -11,7 +11,9 @@ const conversationConverter = {
       updatedAt: data.updatedAt,
     };
   },
-  fromFirestore(snapshot: FirebaseFirestore.QueryDocumentSnapshot): Conversation {
+  fromFirestore(
+    snapshot: FirebaseFirestore.QueryDocumentSnapshot,
+  ): Conversation {
     const data = snapshot.data();
     return {
       id: data.id,
@@ -25,7 +27,7 @@ const conversationConverter = {
           ? data.updatedAt.toDate()
           : data.updatedAt,
     };
-  }
+  },
 };
 
 export class FirestoreConversationRepository implements ConversationRepository {
@@ -33,7 +35,7 @@ export class FirestoreConversationRepository implements ConversationRepository {
 
   constructor(firestore: Firestore) {
     this.conversationCollection = firestore
-      .collection('conversation')
+      .collection("conversation")
       .withConverter(conversationConverter);
   }
 
@@ -43,21 +45,25 @@ export class FirestoreConversationRepository implements ConversationRepository {
     const now = new Date();
 
     if (docSnap.exists) {
-        return await docRef.update({
-            updatedAt: now,
-        });
+      return await docRef.update({
+        updatedAt: now,
+      });
     }
 
-    return docRef.set({
-        id: conversationId,
-        shopDomain: shopDomain,
-        createdAt: now,
-        updatedAt: now,
-    });
+    const conversation = {
+      id: conversationId,
+      shopDomain: shopDomain,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await docRef.set(conversation);
+    return conversation;
   }
 
   async findAllByShop(shopDomainHash: string): Promise<Conversation[]> {
-    const ref = this.conversationCollection.where('shopDomain', '==', shopDomainHash).orderBy('createdAt', 'desc');
+    const ref = this.conversationCollection
+      .where("shopDomain", "==", shopDomainHash)
+      .orderBy("createdAt", "desc");
     const snapshot = await ref.get();
     return snapshot.docs.map((doc) => doc.data());
   }
