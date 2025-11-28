@@ -7,11 +7,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const body = await request.json();
   const validatedData = MessageSchema.parse(body);
 
-  chatService.saveMessage(
+  const savedMessage = await chatService.saveMessage(
     validatedData.conversationId.toString(),
     validatedData.role,
     validatedData.content,
     validatedData.shopDomain,
   );
-  return { ok: true };
+  return Response.json(savedMessage, { status: 201 });
 }
