@@ -1042,15 +1042,16 @@
         // No previous conversation, show welcome message
         const urlParams = new URLSearchParams(window.location.search);
         const loadReport = urlParams.get("loadCustomNeosolReport");
-        
+
         if (loadReport) {
-          const url = `${window.shopChatConfig.turfGrassServiceEndpoint}?zipCode=${window.shopChatConfig.customerZipCode}&date=2025-11-27&locale=${Shopify.locale}`;
+          const url = `${window.shopChatConfig.appProxyEndpoint}/api/report?zipCode=${window.shopChatConfig.customerZipCode}&date=2025-11-27&locale=${Shopify.locale}`;
           const response = await fetch(url);
           if (!response.ok) {
             console.error(await response.body);
             throw new Error("turfGrassServiceEndpoint error");
           }
           const report = await response.text();
+
           console.log(report);
           this.Message.add(
             report,
