@@ -22,12 +22,15 @@ export async function loader({ request }) {
       headers: getCorsHeaders(request)
     });
   }
+  await authenticate.public.appProxy(request);
 
   const url = new URL(request.url);
 
   // Handle history fetch requests - matches /chat?history=true&conversation_id=XYZ
-  if (url.searchParams.has('history') && url.searchParams.has('conversation_id')) {
-    return handleHistoryRequest(request, url.searchParams.get('conversation_id'));
+  if (url.searchParams.has("history")) {
+    const userId = url.searchParams.get("logged_in_customer_id");
+    const conversationId = url.searchParams.get("conversation_id");
+    return handleHistoryRequest(request, conversationId, userId);
   }
 
   // Handle SSE requests
@@ -43,6 +46,7 @@ export async function loader({ request }) {
  * React Router action function for handling POST requests
  */
 export async function action({ request }) {
+  await authenticate.public.appProxy(request);
   return handleChatRequest(request);
 }
 
