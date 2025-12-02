@@ -35,7 +35,9 @@
 <script src="{{ 'chat.js' | asset_url }}" defer></script>
 <script>
   window.shopChatConfig = {
-    welcomeMessage: "{{ 'chat.welcomeMessage' | t }}";
+    welcomeMessage: "{{ 'chat.welcomeMessage' | t }}",
+    backendUrl: "https://esquad-backend-106121245730.northamerica-northeast1.run.app",
+    env: "{{block.settings.env}}"
   };
   window.shopId = {{ shop.id }};
   const chatIntegrationType = "{{ block.settings.chat_integration_type }}";
@@ -55,6 +57,22 @@
   "name": "AI Chat Assistant",
   "target": "section",
   "settings": [
+    {
+      "id":"env",
+      "type":"select",
+      "label": "Type d'environement",
+      "options": [
+        {
+          "value": "production",
+          "label": "production",
+        },
+        {
+          "value": "dev",
+          "label": "dev",
+        }
+      ],
+      "default": "dev"
+    },
     {
       "type": "color",
       "id": "chat_widget_color",
