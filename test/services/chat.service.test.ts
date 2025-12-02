@@ -4,7 +4,8 @@ import { ChatService } from '../../app/services/chat.service'
 const mockConversationRepo = {
   upsert: vi.fn(),
   findAllByShop: vi.fn(),
-}
+  findLastByUserId: vi.fn(),
+};
 
 const mockMessageRepo = {
   save: vi.fn(),
