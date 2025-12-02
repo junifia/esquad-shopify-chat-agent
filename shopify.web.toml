@@ -1,6 +1,7 @@
 name = "React Router"
 roles = ["frontend", "backend"]
 webhooks_path = "/webhooks/app/uninstalled"
+port = 3000
 
 [commands]
 dev = "npm exec react-router dev"
