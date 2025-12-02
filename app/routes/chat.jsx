@@ -8,7 +8,8 @@ import AppConfig from "../services/config.server";
 import { createSseStream } from "../services/streaming.server";
 import { createClaudeService } from "../services/claude.server";
 import { createToolService } from "../services/tool.server";
-
+import { authenticate } from "/app/shopify.server";
+import { chatService } from "/app/config";
 
 /**
  * Rract Router loader function for handling GET requests
@@ -51,10 +52,36 @@ export async function action({ request }) {
  * @param {string} conversationId - The conversation ID
  * @returns {Response} JSON response with chat history
  */
-async function handleHistoryRequest(request, conversationId) {
-  const messages = await getConversationHistory(conversationId);
+async function handleHistoryRequest(request, conversationId, userId) {
+  const shopOrigin = request.headers.get("Origin");
+  const shopDomain = new URL(shopOrigin).hostname;
 
-  return new Response(JSON.stringify({ messages }), { headers: getCorsHeaders(request) });
+  //if the user is not authentified
+  if (userId === "" && conversationId) {
+    const messages = await getConversationHistory(conversationId);
+    return new Response(JSON.stringify({ messages }), {
+      headers: getCorsHeaders(request),
+    });
+  }
+
+  const conversation = await chatService.getUserLastConversation(
+    shopDomain,
+    userId,
+  );
+
+  if (conversation) {
+    const messages = await getConversationHistory(conversation.id);
+    return new Response(
+      JSON.stringify({ messages, conversationId: conversation.id }),
+      {
+        headers: getCorsHeaders(request),
+      },
+    );
+  } else {
+    return new Response(JSON.stringify({ messages: [] }), {
+      headers: getCorsHeaders(request),
+    });
+  }
 }
 
 /**
@@ -67,6 +94,8 @@ async function handleChatRequest(request) {
     // Get message data from request body
     const body = await request.json();
     const userMessage = body.message;
+    const url = new URL(request.url);
+    const userId = url.searchParams.get("logged_in_customer_id");
 
     // Validate required message
     if (!userMessage) {
@@ -86,6 +115,7 @@ async function handleChatRequest(request) {
         userMessage,
         conversationId,
         stream,
+        userId,
       });
     });
 
@@ -114,6 +144,7 @@ async function handleChatSession({
   userMessage,
   conversationId,
   stream,
+  userId,
 }) {
   // Initialize services
   const claudeService = createClaudeService();
@@ -160,7 +191,7 @@ async function handleChatSession({
   let productsToDisplay = [];
 
   // Save user message to the database
-  await saveMessage(conversationId, "user", userMessage, shopDomain);
+  await saveMessage(conversationId, "user", userMessage, shopDomain, userId);
 
   // Fetch all messages from the database for this conversation
   const dbMessages = await getConversationHistory(conversationId);
@@ -209,6 +240,7 @@ async function handleChatSession({
             conversationId,
             message.role,
             JSON.stringify(message.content),
+            userId,
           ).catch((error) => {
             console.error("Error saving message to database:", error);
           });
