@@ -70,18 +70,23 @@ export class FirestoreConversationRepository implements ConversationRepository {
     const now = new Date();
 
     if (docSnap.exists) {
-      return await docRef.update({
+      await docRef.update({
         updatedAt: now,
       });
+      const docData = docSnap.data();
+
+      return { docData, updatedAt: now };
     }
 
-    return docRef.set({
+    const conversation = {
       id: conversationId,
       shopDomain: shopDomain,
       createdAt: now,
       updatedAt: now,
       userId: userId,
-    });
+    };
+    await docRef.set(conversation);
+    return conversation;
   }
 
   async findAllByShop(shopDomain: string): Promise<Conversation[]> {
