@@ -11,7 +11,6 @@ export async function action({ request }: ActionFunctionArgs) {
     validatedData.conversationId.toString(),
     validatedData.role,
     validatedData.content,
-    validatedData.shopDomain,
   );
   return Response.json(savedMessage, { status: 201 });
 }
