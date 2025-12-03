@@ -6,7 +6,7 @@
     PROD_PREFIX: "/apps/esquad-backend",
     DEV_URL: "http://localhost:3000",
     ENDPOINTS: {
-      SIGNATURE: "/shopify/appproxy/signature",
+      SIGNATURE: "/shopify/app-proxy/signature",
       CHAT: "/chat",
       TOKEN_STATUS: "/auth/token-status",
     },
@@ -64,7 +64,6 @@
 
       return `${baseUrl}${endpoint}${queryString}`;
     }
-
 
     getBackendUrl() {
       return this.isProd() ? CONFIG.PROD_PREFIX : CONFIG.DEV_URL;

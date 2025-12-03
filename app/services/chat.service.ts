@@ -6,7 +6,6 @@ import { CustomerToken } from "app/domain/customer-token";
 import { CustomerTokenRepository } from "app/domain/customer-token-repository";
 import { Conversation, Message } from "app/domain/message";
 import { ConversationRepository } from "app/domain/conversation-repository";
-import { chatService } from "app/config";
 import { ConversationNotFound } from "app/domain/conversation-not-found-exception";
 
 export class ChatService {
