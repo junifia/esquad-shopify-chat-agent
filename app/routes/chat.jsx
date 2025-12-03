@@ -60,7 +60,6 @@ async function handleHistoryRequest(request, conversationId, userId) {
   const shopOrigin = request.headers.get("Origin");
   const shopDomain = new URL(shopOrigin).hostname;
 
-  //if the user is not authentified
   if (userId === "" && conversationId) {
     const messages = await getConversationHistory(conversationId);
     return new Response(JSON.stringify({ messages }), {
