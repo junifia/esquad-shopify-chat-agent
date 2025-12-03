@@ -1,6 +1,7 @@
 import { authenticate } from "app/shopify.server";
+import type { Route } from "./+types/shopify.appproxy.signature";
 
-export async function loader({ request }) {
+export async function loader({ request }: Route.LoaderArgs) {
   await authenticate.public.appProxy(request);
   const url = new URL(request.url);
   const logged_in_customer_id = url.searchParams.get("logged_in_customer_id");
