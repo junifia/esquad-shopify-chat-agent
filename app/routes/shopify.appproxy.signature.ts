@@ -4,14 +4,6 @@ import type { Route } from "./+types/shopify.appproxy.signature";
 export async function loader({ request }: Route.LoaderArgs) {
   await authenticate.public.appProxy(request);
   const url = new URL(request.url);
-  const logged_in_customer_id = url.searchParams.get("logged_in_customer_id");
-  const path_prefix = url.searchParams.get("path_prefix");
-  const shop = url.searchParams.get("shop");
-  const signature = url.searchParams.get("signature");
-  const timestamp = url.searchParams.get("timestamp");
-  const queryParams = `logged_in_customer_id=${logged_in_customer_id}&path_prefix=${path_prefix}&shop=${shop}&signature=${signature}&timestamp=${timestamp}`;
-  const responseDto = {
-    queryParams,
-  };
+  const responseDto = Object.fromEntries(url.searchParams.entries());
   return new Response(JSON.stringify(responseDto));
 }
