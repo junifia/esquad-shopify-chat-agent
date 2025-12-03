@@ -634,10 +634,8 @@
           messagesContainer.appendChild(loadingMessage);
 
           // Fetch history from the server
-          const queryParams = `history=true&conversation_id=${encodeURIComponent(conversationId)}`;
-          const baseUrl =
-            await window.shopChatUrlService.getChatHistoryUrl(queryParams);
-          const historyUrl = `${baseUrl}&${queryParams}`;
+          const historyUrl =
+            await window.shopChatUrlService.getChatHistoryUrl(conversationId);
 
           const response = await fetch(historyUrl, {
             method: 'GET',
@@ -700,7 +698,7 @@
           ShopAIChat.Message.add(welcomeMessage, 'assistant', messagesContainer);
 
           // Clear the conversation ID since we couldn't fetch this conversation
-          sessionStorage.removeItem('shopAiConversationId');
+          localStorage.removeItem("shopAiConversationId");
         }
       }
     },
@@ -790,9 +788,7 @@
 
           try {
             const tokenUrl =
-              window.shopChatUrlService.getBackendUrl() +
-              "/auth/token-status?conversation_id=" +
-              encodeURIComponent(conversationId);
+              await window.shopChatUrlService.getTokenStatusUrl(conversationId);
             const response = await fetch(tokenUrl);
 
             if (!response.ok) {
