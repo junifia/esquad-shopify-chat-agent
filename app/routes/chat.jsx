@@ -10,6 +10,7 @@ import { createClaudeService } from "../services/claude.server";
 import { createToolService } from "../services/tool.server";
 import { authenticate } from "/app/shopify.server";
 import { chatService } from "/app/config";
+import { ConversationNotFound } from "../domain/conversation-not-found-exception";
 
 /**
  * Rract Router loader function for handling GET requests
@@ -67,12 +68,11 @@ async function handleHistoryRequest(request, conversationId, userId) {
     });
   }
 
-  const conversation = await chatService.getUserLastConversation(
-    shopDomain,
-    userId,
-  );
-
-  if (conversation) {
+  try {
+    const conversation = await chatService.getUserLastConversation(
+      shopDomain,
+      userId,
+    );
     const messages = await getConversationHistory(conversation.id);
     return new Response(
       JSON.stringify({ messages, conversationId: conversation.id }),
@@ -80,10 +80,13 @@ async function handleHistoryRequest(request, conversationId, userId) {
         headers: getCorsHeaders(request),
       },
     );
-  } else {
-    return new Response(JSON.stringify({ messages: [] }), {
-      headers: getCorsHeaders(request),
-    });
+  } catch (error) {
+    if (error instanceof ConversationNotFound) {
+      return new Response(JSON.stringify({ messages: [] }), {
+        headers: getCorsHeaders(request),
+      });
+    }
+    throw error;
   }
 }
 

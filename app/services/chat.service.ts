@@ -84,19 +84,11 @@ export class ChatService {
   async getUserLastConversation(
     shopDomain: string,
     userId: string,
-  ): Promise<Conversation | null> {
-    try {
-      return await this.conversationRepository.findLastByUserId(
-        shopDomain,
-        userId,
-      );
-    } catch (error) {
-      if (error instanceof ConversationNotFound) {
-        return null;
-      } else {
-        throw error;
-      }
-    }
+  ): Promise<Conversation> {
+    return await this.conversationRepository.findLastByUserId(
+      shopDomain,
+      userId,
+    );
   }
 
   async getConversationHistory(conversationId: string): Promise<Message[]> {
