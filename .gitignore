@@ -30,3 +30,4 @@ shopify.*.toml
 .react-router/
 .zed/
 .genkit/
+extensions/chat-bubble/assets/.vite
