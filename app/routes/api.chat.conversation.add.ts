@@ -1,18 +1,28 @@
 import type { ActionFunctionArgs } from "react-router";
+import { z } from "zod";
 
 import { chatService } from "app/config";
 import { AddConversationSchema } from "app/api/controllers/dto/add-conversation";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const body = await request.json();
-  const validatedData = AddConversationSchema.parse(body);
+  try {
+    const body = await request.json();
+    const validatedData = AddConversationSchema.parse(body);
+    const conversationId = Date.now().toString();
 
-  const conversationId = Date.now().toString();
-
-  const newConversation = await chatService.createOrUpdateConversation(
-    conversationId,
-    validatedData.shopDomain,
-    validatedData.userId ? validatedData.userId : "",
-  );
-  return Response.json(newConversation, { status: 201 });
+    const newConversation = await chatService.createOrUpdateConversation(
+      conversationId,
+      validatedData.shopDomain,
+      validatedData.userId ? validatedData.userId : "",
+    );
+    return Response.json(newConversation, { status: 201 });
+  } catch (error) {
+    console.error(error);
+    return Response.json(
+      {
+        error: "Validation error",
+      },
+      { status: 400 },
+    );
+  }
 }
