@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs } from "react-router";
-import { z } from "zod";
 
 import { chatService } from "app/config";
 import { AddConversationSchema } from "app/api/controllers/dto/add-conversation";
