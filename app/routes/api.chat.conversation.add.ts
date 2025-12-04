@@ -16,7 +16,6 @@ export async function action({ request }: ActionFunctionArgs) {
     );
     return Response.json(newConversation, { status: 201 });
   } catch (error) {
-    console.error(error);
     return Response.json(
       {
         error: "Validation error",
