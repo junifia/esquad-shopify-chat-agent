@@ -35,13 +35,13 @@ export class UrlService {
   private _toQueryString(
     params: Record<string, string | number | boolean> = {},
   ): string {
-    if (!params || Object.keys(params).length === 0) return "";
-
-    // URLSearchParams requires string values
-    const stringParams: Record<string, string> = {};
-    for (const [key, value] of Object.entries(params)) {
-      stringParams[key] = String(value);
+    if (!params || Object.keys(params).length === 0) {
+      return "";
     }
+
+    const stringParams: Record<string, string> = Object.fromEntries(
+      Object.entries(params).map(([key, value]) => [key, String(value)]),
+    );
 
     const query = new URLSearchParams(stringParams).toString();
     return `?${query}`;
