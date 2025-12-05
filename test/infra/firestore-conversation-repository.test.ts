@@ -3,7 +3,6 @@ import { FirestoreConversationRepository } from "app/infrastructure/firestore-co
 import { Firestore } from "@google-cloud/firestore";
 import { ConversationNotFound } from "app/domain/conversation-not-found-exception";
 
-// Mock Firestore
 vi.mock("@google-cloud/firestore", () => {
   return {
     Firestore: vi.fn(),
@@ -22,7 +21,6 @@ describe("FirestoreConversationRepository", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock the query chain
     queryBuilderMock = {
       where: vi.fn().mockReturnThis(),
       orderBy: vi.fn().mockReturnThis(),
@@ -30,12 +28,10 @@ describe("FirestoreConversationRepository", () => {
       get: vi.fn(),
     };
 
-    // Mock the collection reference and withConverter
     const collectionRefMock = {
       withConverter: vi.fn().mockReturnValue(queryBuilderMock),
     };
 
-    // Mock the Firestore instance
     firestoreMock = {
       collection: vi.fn().mockReturnValue(collectionRefMock),
     };
@@ -69,10 +65,8 @@ describe("FirestoreConversationRepository", () => {
 
       const result = await repository.findLastByUserId(shopDomain, userId);
 
-      // Verify Firestore collection was accessed correctly
       expect(firestoreMock.collection).toHaveBeenCalledWith("conversation");
 
-      // Verify query construction
       expect(queryBuilderMock.where).toHaveBeenCalledWith(
         "shopDomain",
         "==",
@@ -89,7 +83,6 @@ describe("FirestoreConversationRepository", () => {
       );
       expect(queryBuilderMock.limit).toHaveBeenCalledWith(1);
 
-      // Verify result
       expect(result).toEqual(conversationData);
     });
 
