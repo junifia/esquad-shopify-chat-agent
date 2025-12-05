@@ -3,11 +3,12 @@ export interface Conversation {
   shopDomain: string;
   createdAt: Date;
   updatedAt: Date;
+  userId: string;
 }
 
 export interface Message {
   conversationId: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   createdAt: Date;
 }

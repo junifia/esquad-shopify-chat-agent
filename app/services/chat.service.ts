@@ -4,18 +4,24 @@ import { CustomerAccountUrls } from "app/domain/customer-account-urls";
 import { CustomerAccountUrlsRepository } from "app/domain/customer-account-urls-repository";
 import { CustomerToken } from "app/domain/customer-token";
 import { CustomerTokenRepository } from "app/domain/customer-token-repository";
-import { Message } from "app/domain/message";
+import { Conversation, Message } from "app/domain/message";
 import { ConversationRepository } from "app/domain/conversation-repository";
+import { ConversationNotFound } from "app/domain/conversation-not-found-exception";
 
-export class ChatService
-{
+export class ChatService {
   private conversationRepository: ConversationRepository;
   private messageRepository: MessageRepository;
   private codeVerifierRepository: CodeVerifierRepository;
   private customerTokenRepository: CustomerTokenRepository;
   private customerAccountUrlsRepository: CustomerAccountUrlsRepository;
 
-  constructor(conversationRepository: ConversationRepository, messageRepository: MessageRepository, codeVerifierRepository: CodeVerifierRepository, customerTokenRepository: CustomerTokenRepository, customerAccountUrlsRepository: CustomerAccountUrlsRepository){
+  constructor(
+    conversationRepository: ConversationRepository,
+    messageRepository: MessageRepository,
+    codeVerifierRepository: CodeVerifierRepository,
+    customerTokenRepository: CustomerTokenRepository,
+    customerAccountUrlsRepository: CustomerAccountUrlsRepository,
+  ) {
     this.conversationRepository = conversationRepository;
     this.codeVerifierRepository = codeVerifierRepository;
     this.messageRepository = messageRepository;
@@ -23,12 +29,11 @@ export class ChatService
     this.customerAccountUrlsRepository = customerAccountUrlsRepository;
   }
 
-
-  async storeCodeVerifier(state: string, verifier: string): Promise<object>{
+  async storeCodeVerifier(state: string, verifier: string): Promise<object> {
     return await this.codeVerifierRepository.save(state, verifier);
   }
 
-  async getCodeVerifier(state: string): Promise<object|null> {
+  async getCodeVerifier(state: string): Promise<object | null> {
     return await this.codeVerifierRepository.find(state);
   }
 
@@ -37,28 +42,53 @@ export class ChatService
     accessToken: string,
     expiresAt: string,
   ) {
-    return await this.customerTokenRepository.save(conversationId, accessToken, expiresAt);
+    return await this.customerTokenRepository.save(
+      conversationId,
+      accessToken,
+      expiresAt,
+    );
   }
 
-  async getCustomerToken(conversationId: string): Promise<CustomerToken | null> {
+  async getCustomerToken(
+    conversationId: string,
+  ): Promise<CustomerToken | null> {
     return await this.customerTokenRepository.find(conversationId);
   }
 
-  async createOrUpdateConversation(conversationId: string, shopDomain: string): Promise<object> {
-    return await this.conversationRepository.upsert(conversationId, shopDomain);
+  async createOrUpdateConversation(
+    conversationId: string,
+    shopDomain: string,
+    userId: string,
+  ): Promise<object> {
+    return await this.conversationRepository.upsert(
+      conversationId,
+      shopDomain,
+      userId,
+    );
   }
 
   async saveMessage(
     conversationId: string,
     role: string,
     content: string,
-    shopDomain?: string
+    shopDomain?: string,
+    userId?: string,
   ): Promise<Message> {
-    if (shopDomain) {
-      this.createOrUpdateConversation(conversationId, shopDomain);
+    if (shopDomain && userId) {
+      this.createOrUpdateConversation(conversationId, shopDomain, userId);
     }
 
     return await this.messageRepository.save(conversationId, role, content);
+  }
+
+  async getUserLastConversation(
+    shopDomain: string,
+    userId: string,
+  ): Promise<Conversation> {
+    return await this.conversationRepository.findLastByUserId(
+      shopDomain,
+      userId,
+    );
   }
 
   async getConversationHistory(conversationId: string): Promise<Message[]> {
@@ -69,21 +99,28 @@ export class ChatService
     conversationId,
     mcpApiUrl,
     authorizationUrl,
-    tokenUrl
+    tokenUrl,
   }: {
     conversationId: string;
     mcpApiUrl: string;
     authorizationUrl: string;
     tokenUrl: string;
   }): Promise<CustomerAccountUrls> {
-    return await this.customerAccountUrlsRepository.save(conversationId, mcpApiUrl, authorizationUrl, tokenUrl);
+    return await this.customerAccountUrlsRepository.save(
+      conversationId,
+      mcpApiUrl,
+      authorizationUrl,
+      tokenUrl,
+    );
   }
 
-  async getCustomerAccountUrls(conversationId: string): Promise<CustomerAccountUrls | null> {
+  async getCustomerAccountUrls(
+    conversationId: string,
+  ): Promise<CustomerAccountUrls | null> {
     return await this.customerAccountUrlsRepository.find(conversationId);
   }
 
-  async getShopConversationHistory(shopDomain: string){
+  async getShopConversationHistory(shopDomain: string) {
     return this.conversationRepository.findAllByShop(`https://${shopDomain}`);
   }
 }
