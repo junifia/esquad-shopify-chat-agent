@@ -52,7 +52,7 @@ export class FirestoreMessageRepository implements MessageRepository {
     const docRef =
       await this.getMessagesCollection(conversationId).add(message);
     const createdDoc = await docRef.get();
-    return createdDoc.data() as Message;
+    return createdDoc.data()!;
   }
 
   async find(conversationId: string): Promise<Message[]> {
