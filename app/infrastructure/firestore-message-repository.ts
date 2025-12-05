@@ -22,29 +22,35 @@ const messageConverter = {
           ? data.createdAt.toDate()
           : data.createdAt,
     };
-  }
+  },
 };
 
 export class FirestoreMessageRepository implements MessageRepository {
-  constructor(private readonly firestore: Firestore) {
-  }
+  constructor(private readonly firestore: Firestore) {}
 
-  private getMessagesCollection(conversationId: string): FirebaseFirestore.CollectionReference<Message> {
+  private getMessagesCollection(
+    conversationId: string,
+  ): FirebaseFirestore.CollectionReference<Message> {
     return this.firestore
-      .collection('conversation')
+      .collection("conversation")
       .doc(conversationId)
-      .collection('messages')
+      .collection("messages")
       .withConverter(messageConverter);
   }
 
-  async save(conversationId: string, role: 'user' | 'assistant', content: string): Promise<Message> {
+  async save(
+    conversationId: string,
+    role: "user" | "assistant",
+    content: string,
+  ): Promise<Message> {
     const message: Message = {
       conversationId,
       role,
       content,
       createdAt: new Date(),
     };
-    const docRef = await this.getMessagesCollection(conversationId).add(message);
+    const docRef =
+      await this.getMessagesCollection(conversationId).add(message);
     const createdDoc = await docRef.get();
     return createdDoc.data() as Message;
   }
@@ -52,9 +58,10 @@ export class FirestoreMessageRepository implements MessageRepository {
   async find(conversationId: string): Promise<Message[]> {
     const messagesRef = this.getMessagesCollection(conversationId);
     const snapshot = await messagesRef
-      .orderBy('createdAt', 'asc')
+      .orderBy("createdAt", "desc")
+      .limit(50)
       .get();
 
-    return snapshot.docs.map((doc) => doc.data());
+    return snapshot.docs.map((doc) => doc.data()).reverse();
   }
 }
