@@ -551,7 +551,7 @@
         switch (data.type) {
           case 'id':
             if (data.conversation_id) {
-              sessionStorage.setItem('shopAiConversationId', data.conversation_id);
+              localStorage.setItem('shopAiConversationId', data.conversation_id);
             }
             break;
 
