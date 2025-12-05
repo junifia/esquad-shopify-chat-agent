@@ -240,7 +240,7 @@
        */
       send: async function(chatInput, messagesContainer) {
         const userMessage = chatInput.value.trim();
-        const conversationId = sessionStorage.getItem('shopAiConversationId');
+        const conversationId = localStorage.getItem("shopAiConversationId");
 
         // Add user message to chat
         this.add(userMessage, 'user', messagesContainer);
@@ -485,7 +485,7 @@
             conversation_id: conversationId,
           });
 
-          const streamUrl = 'http://localhost:3000/chat';
+          const streamUrl = await window.shopChatUrlService.getChatStreamUrl();
           const shopId = window.shopId;
 
           const response = await fetch(streamUrl, {
@@ -551,7 +551,7 @@
         switch (data.type) {
           case 'id':
             if (data.conversation_id) {
-              sessionStorage.setItem('shopAiConversationId', data.conversation_id);
+              localStorage.setItem('shopAiConversationId', data.conversation_id);
             }
             break;
 
@@ -634,8 +634,8 @@
           messagesContainer.appendChild(loadingMessage);
 
           // Fetch history from the server
-          const historyUrl = `https://localhost:3458/chat?history=true&conversation_id=${encodeURIComponent(conversationId)}`;
-          console.log('Fetching history from:', historyUrl);
+          const historyUrl =
+            await window.shopChatUrlService.getChatHistoryUrl(conversationId);
 
           const response = await fetch(historyUrl, {
             method: 'GET',
@@ -661,6 +661,10 @@
             const welcomeMessage = window.shopChatConfig?.welcomeMessage;
             ShopAIChat.Message.add(welcomeMessage, 'assistant', messagesContainer);
             return;
+          }
+
+          if (data.conversationId) {
+            localStorage.setItem("shopAiConversationId", data.conversationId);
           }
 
           // Add messages to the UI - filter out tool results
@@ -694,7 +698,7 @@
           ShopAIChat.Message.add(welcomeMessage, 'assistant', messagesContainer);
 
           // Clear the conversation ID since we couldn't fetch this conversation
-          sessionStorage.removeItem('shopAiConversationId');
+          localStorage.removeItem("shopAiConversationId");
         }
       }
     },
@@ -742,7 +746,7 @@
         }
 
         // Start polling for token availability
-        const conversationId = sessionStorage.getItem('shopAiConversationId');
+        const conversationId = localStorage.getItem("shopAiConversationId");
         if (conversationId) {
           const messagesContainer = document.querySelector('.shop-ai-chat-messages');
 
@@ -762,9 +766,9 @@
       startTokenPolling: function(conversationId, messagesContainer) {
         if (!conversationId) return;
 
-        console.log('Starting token polling for conversation:', conversationId);
-        const pollingId = 'polling_' + Date.now();
-        sessionStorage.setItem('shopAiTokenPollingId', pollingId);
+        console.log("Starting token polling for conversation:", conversationId);
+        const pollingId = "polling_" + Date.now();
+        sessionStorage.setItem("shopAiTokenPollingId", pollingId);
 
         let attemptCount = 0;
         const maxAttempts = 30;
@@ -783,8 +787,8 @@
           attemptCount++;
 
           try {
-            const tokenUrl = 'https://localhost:3458/auth/token-status?conversation_id=' +
-              encodeURIComponent(conversationId);
+            const tokenUrl =
+              await window.shopChatUrlService.getTokenStatusUrl(conversationId);
             const response = await fetch(tokenUrl);
 
             if (!response.ok) {
@@ -916,17 +920,13 @@
       this.UI.init(container);
 
       // Check for existing conversation
-      const conversationId = sessionStorage.getItem('shopAiConversationId');
+      const conversationId = localStorage.getItem("shopAiConversationId");
 
-      if (conversationId) {
-        // Fetch conversation history
-        this.API.fetchChatHistory(conversationId, this.UI.elements.messagesContainer);
-      } else {
-        // No previous conversation, show welcome message
-        const welcomeMessage = window.shopChatConfig?.welcomeMessage;
-        this.Message.add(welcomeMessage, 'assistant', this.UI.elements.messagesContainer);
-      }
-    }
+      this.API.fetchChatHistory(
+        conversationId ? conversationId : "",
+        this.UI.elements.messagesContainer,
+      );
+    },
   };
 
   // Initialize the application when DOM is ready

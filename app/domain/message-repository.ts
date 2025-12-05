@@ -1,12 +1,11 @@
-import { Conversation, Message } from "./message";
+import type { Message } from "./message";
 
-export interface MessageRepository
-{
+export interface MessageRepository {
   save(
     conversationId: string,
     role: string,
     content: string,
-    shopDomain?: string
+    shopDomain?: string,
   ): Promise<Message>;
   find(conversationId: string): Promise<Message[]>;
 }

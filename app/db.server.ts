@@ -51,8 +51,16 @@ export async function getCustomerToken(conversationId: string): Promise<Customer
  * @param {string} conversationId - The conversation ID
  * @returns {Promise<Object>} - The created or updated conversation
  */
-export async function createOrUpdateConversation(conversationId: string, shopDomain: string): Promise<object> {
-  return await chatService.createOrUpdateConversation(conversationId, shopDomain);
+export async function createOrUpdateConversation(
+  conversationId: string,
+  shopDomain: string,
+  userId: string,
+): Promise<object> {
+  return await chatService.createOrUpdateConversation(
+    conversationId,
+    shopDomain,
+    userId,
+  );
 }
 
 /**
@@ -66,10 +74,11 @@ export async function saveMessage(
   conversationId: string,
   role: string,
   content: string,
-  shopDomain: string
+  shopDomain: string,
+  userId: string,
 ): Promise<Message> {
   if (shopDomain) {
-    createOrUpdateConversation(conversationId, shopDomain);
+    createOrUpdateConversation(conversationId, shopDomain, userId);
   }
 
   return await chatService.saveMessage(conversationId, role, content);
@@ -97,6 +106,11 @@ export async function storeCustomerAccountUrls({
   mcpApiUrl,
   authorizationUrl,
   tokenUrl,
+}: {
+  conversationId: string;
+  mcpApiUrl: string;
+  authorizationUrl: string;
+  tokenUrl: string;
 }): Promise<object> {
   return chatService.storeCustomerAccountUrls({conversationId, mcpApiUrl, authorizationUrl, tokenUrl});
 }
