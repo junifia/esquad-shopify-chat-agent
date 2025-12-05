@@ -7,14 +7,7 @@
   "type": "module",
   "main": "vite.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite build --watch",
-    "deploy": "run-s \"vite:build\" \"shopify:push -- {@}\" --",
-    "shopify:dev": "shopify theme dev",
-    "shopify:push": "shopify theme push",
-    "build": "vite build",
-    "vite:dev": "vite",
-    "vite:build": "vite build"
+    "dev": "vite build --watch"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.17",
