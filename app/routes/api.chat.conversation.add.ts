@@ -15,7 +15,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const newConversation = await chatService.createOrUpdateConversation(
     conversationId,
     result.data.shopDomain,
-    result.data.userId ? result.data.userId : "",
+    result.data.userId,
   );
   return Response.json(newConversation, { status: 201 });
 }
